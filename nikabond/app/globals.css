@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --color-airbnb: #ff385c;
+  --color-airbnb-dark: #d50027;
+}
+
+
+@layer base {
+  h1 {
+    font-size: var(--text-2xl);
+  }
+  h2 {
+    font-size: var(--text-xl);
+  }
+}
+
+@tailwind utilities;
+@layer utilities {
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(0.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+}
