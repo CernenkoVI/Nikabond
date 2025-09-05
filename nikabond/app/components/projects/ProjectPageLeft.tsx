@@ -1,7 +1,11 @@
 import Image from "next/image";
 import AttachedMediaButton from "../AttachedMediaButton";
 
-const ProjectPageLeft = () => {
+import apiService from "@/app/services/apiService";
+
+const ProjectPageLeft = async ({params}: {params: {id: string}}) => {
+    const { id } = params;
+    const project = await apiService.get(`/api/projects/${id}`);
     return (
         <div className="my-2 flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0">
             {/* Left Column: Image */}
@@ -9,17 +13,17 @@ const ProjectPageLeft = () => {
 
                 <div className="flex flex-col items-center p-6 rounded-xl bg-lime-100 border border-lime-300 shadow-xl">
 
-                    <h1 className="mb-2 text-2xl font-semibold">Mega Project</h1>
+                    <h1 className="mb-2 text-2xl font-semibold">{project.name}</h1>
 
                     <Image
-                        src="/project.png"
+                        src={project.image_url}
                         width={200}
                         height={200}
                         alt="Project pic"
                         className="mb-2 rounded-xl"
                     />
 
-                    <p className="my-3 text-sm font-semibold opacity-80">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
+                    <p className="my-3 text-sm font-semibold opacity-80">{project.description}</p>
                     <p className="text-lg font-semibold opacity-80">Attached media:</p>
 
                     <AttachedMediaButton />

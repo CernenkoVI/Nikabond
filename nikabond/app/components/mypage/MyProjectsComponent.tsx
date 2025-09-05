@@ -1,10 +1,42 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import MyProjectsComponentItem from "./MyProjectsComponentItem";
+import { object } from "framer-motion/client";
+
+export type ProjectType = {
+    id: string;
+    name: string;
+    description: string;
+    shooting_start: string;
+    shooting_end: string;
+    image_url: string;
+}
 
 const MyProjectsComponent = () => {
+    const[projects,setProjects] = useState<ProjectType[]>([]);
+
+    const getProjects = async () => {
+        const url = 'http://localhost:8000/api/projects/';
+        await fetch(url, {
+            method: 'GET',
+        })
+            .then(response => response.json())
+            .then((json) => {
+                console.log('json',json)
+
+                setProjects(json.data)
+            })
+            .catch((error) => {
+                console.log('error',error)
+            })
+    };
+
+    useEffect(() => {
+        getProjects();
+    }, []);
+
     const [isOpen, setIsOpen] = useState(false); // collapsed by default
 
     const toggleOpen = () => setIsOpen(prev => !prev);
@@ -36,8 +68,14 @@ const MyProjectsComponent = () => {
                         transition={{ duration: 0.4, ease: 'easeInOut' }}
                         className="overflow-hidden m-1 border border-gray-300 rounded-xl"
                     >
-                        <MyProjectsComponentItem />
-                        <MyProjectsComponentItem />
+                        {projects.map((project) => {
+                            return (
+                                <MyProjectsComponentItem
+                                    key={project.id}
+                                    project={project}
+                                />
+                            )
+                        })}
                     </motion.div>
                 )}
             </AnimatePresence>

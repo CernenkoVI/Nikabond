@@ -1,22 +1,34 @@
 import Image from "next/image";
+import { ProjectType } from "./MyProjectsComponent";
+import { useRouter } from "next/navigation";
 
-const MyProjectsComponentItem = () => {
+interface ProjectProps {
+    project: ProjectType
+}
+
+const MyProjectsComponentItem:React.FC<ProjectProps> = ({
+    project
+}) => {
+    const router = useRouter();
     return (
-        <div className="p-5 mt-1 grid grid-cols-5 md:grid-cols-7 lg:grid-cols-9 gap-4 items-center shadow-md">
+        <div
+            className="p-5 mt-1 grid grid-cols-5 md:grid-cols-7 lg:grid-cols-9 gap-4 items-center shadow-md"
+            onClick= {() => router.push(`/projects/${project.id}`)} 
+        >
             <div className="col-span-1">
                 <div className="relative overflow-hidden aspect-square rounded-xl">
                     <Image
                         fill
-                        src="/project.png"
+                        src={project.image_url}
                         className="hover:scale-110 object-cover transition h-full w-full"
                         alt="Project pic"
                     />
                 </div>
             </div>
             <div className="col-span-4 md:col-span-6 lg:col-span-8 space-y-2 bg-lime-100 rounded-xl">
-                <h2 className="text-xl">Mega project</h2>
-                <p><strong>22.Nov.-25.Dec.</strong></p>
-                <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
+                <h2 className="text-xl">{project.name}</h2>
+                <p><strong>{`${project.shooting_start}-${project.shooting_end}`}</strong></p>
+                <p>{project.description}</p>
             </div>
         </div>
         

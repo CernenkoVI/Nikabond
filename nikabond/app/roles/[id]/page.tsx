@@ -2,34 +2,38 @@ import Image from "next/image";
 import Link from "next/link";
 import ActorsList from "@/app/components/actors/ActorsList";
 import AttachedMediaButton from "@/app/components/AttachedMediaButton";
+import apiService from "@/app/services/apiService";
 
-const RoleDetailPage = () => {
+const RoleDetailPage = async ({params}: {params: {id: string}}) => {
+    const { id } = await params;
+    const role = await apiService.get(`/api/roles/${id}`);
+
     return (
         <main className="max-w-[1500px] mx-auto px-6 pt-3">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 <aside className="col-span-1 mb-4">
                     <div className="flex flex-col items-center p-6 rounded-xl bg-lime-100 border border-lime-300 shadow-xl">
 
-                        <h1 className="mb-2 text-2xl font-semibold">Ugly hobo</h1>
+                        <h1 className="mb-2 text-2xl font-semibold">{role.name}</h1>
 
                         <Image
-                            src="/role.png"
+                            src={role.image_url}
                             width={200}
                             height={200}
                             alt="Role pic"
                             className="mb-2 rounded-full"
                         />
 
-                        <p className="mb-y text-sm font-semibold opacity-70">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
+                        <p className="mb-y text-sm font-semibold opacity-70">{role.description}</p>
 
 
                         <div className="mt-4 flex items-center space-x-2">
                             <p className="text-lg font-semibold opacity-80">Project</p>
-                            <Link href="/projects/1">
+                            <Link href={`/projects/${role.project.id}`}>
                                 <div className="cursor-pointer p-1">
                                     <img
-                                        src="/project.png"
-                                        alt="Agency pic"
+                                        src={role.project.image_url}
+                                        alt="Role pic"
                                         className="w-[58px] h-[58px] min-w-[58px] rounded-xl"
                                     />
                                 </div>

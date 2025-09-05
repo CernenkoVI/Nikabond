@@ -2,7 +2,8 @@ import Image from "next/image";
 import apiService from "@/app/services/apiService";
 
 const ContactButton = async ({params}: {params: {id: string}}) => {
-    const actor = await apiService.get(`/api/actors/${params.id}`)
+    const { id } = await params;
+    const actor = await apiService.get(`/api/actors/${id}`)
 
     return (
         <div className="mb-2 font-semibold">
@@ -17,6 +18,7 @@ const ContactButton = async ({params}: {params: {id: string}}) => {
                         className="object-contain"
                         alt="telegram icon"
                         fill
+                        sizes="50px"
                     />
                 </div>
 
@@ -26,6 +28,7 @@ const ContactButton = async ({params}: {params: {id: string}}) => {
                         className="object-contain"
                         alt="whatsapp icon"
                         fill
+                        sizes="50px"
                     />
                 </div>
             </div>
@@ -38,6 +41,7 @@ const ContactButton = async ({params}: {params: {id: string}}) => {
                         className="object-contain"
                         alt="facebook icon"
                         fill
+                        sizes="50px"
                     />
                 </div>
 
@@ -47,6 +51,7 @@ const ContactButton = async ({params}: {params: {id: string}}) => {
                         alt="tiktok icon"
                         className="object-contain"
                         fill
+                        sizes="50px"
                     />
                 </div>
 
@@ -56,6 +61,7 @@ const ContactButton = async ({params}: {params: {id: string}}) => {
                         alt="instagram icon"
                         className="object-contain"
                         fill
+                        sizes="50px"
                     />
                 </div>
 
@@ -65,6 +71,7 @@ const ContactButton = async ({params}: {params: {id: string}}) => {
                         alt="youtube icon"
                         className="object-contain"
                         fill
+                        sizes="50px"
                     />
                 </div>
                 <div className="cursor-pointer items-center relative w-9 h-9 hover:bg-lime-200">
@@ -73,6 +80,7 @@ const ContactButton = async ({params}: {params: {id: string}}) => {
                         alt="linkedin icon"
                         className="object-contain"
                         fill
+                        sizes="50px"
                     />
                 </div>
             </div>            

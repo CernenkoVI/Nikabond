@@ -41,9 +41,6 @@ class ActorsDetailSerializer(serializers.ModelSerializer):
             'licence',
             'height',
             'agent',
-
-
-
             'citizenship',
             'work_permits',
             'size',

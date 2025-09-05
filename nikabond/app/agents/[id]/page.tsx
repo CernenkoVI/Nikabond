@@ -1,38 +1,34 @@
 import ContactButton from "@/app/components/ContactButton";
 import Image from "next/image";
 import ActorsList from "@/app/components/actors/ActorsList";
+import apiService from "@/app/services/apiService";
 
-const AgentDetailPage = () => {
+const AgentDetailPage = async ({params}: {params: {id: string}}) => {
+    const { id } = await params;
+    const agent = await apiService.get(`/api/agents/${id}`)
+
     return (
         <main className="max-w-[1500px] mx-auto px-6 pt-3">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 <aside className="col-span-1 mb-4">
                     <div className="flex flex-col items-center p-6 rounded-xl bg-lime-100 border border-lime-300 shadow-xl">
 
-                        <h1 className="mb-2 text-2xl font-semibold">Agent Smith</h1>
+                        <h1 className="mb-2 text-2xl font-semibold">{agent.name}</h1>
 
                         <Image
-                            src="/agent.png"
+                            src={agent?.image_url}
                             width={200}
                             height={200}
                             alt="Agent pic"
                             className="mb-2 rounded-full"
                         />
 
-                        <p className="mb-y text-sm font-semibold opacity-70">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
+                        <p className="mb-y text-sm font-semibold opacity-70">{agent.description}</p>
+                        <p className="mb-y text-sm font-semibold opacity-70">{agent.email}</p>
+                        <p className="mb-y text-sm font-semibold opacity-70">{agent.phone}</p>
 
-                        <div className="flex items-center space-x-2">
-                            <p><strong>Agency</strong></p>
-                            <div className="cursor-pointer p-1">
-                                <img
-                                    src="/logo1.png"
-                                    alt="Agency pic"
-                                    className="w-[58px] h-[58px] min-w-[58px] rounded-full"
-                                />
-                            </div>
-                        </div>
 
-                        <ContactButton />
+                        { /* <ContactButton /> */ }
 
                     </div>
                 </aside>

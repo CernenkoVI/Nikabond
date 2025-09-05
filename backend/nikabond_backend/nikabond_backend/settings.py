@@ -34,7 +34,7 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKEN": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": True,
-    "SIGNING_KEY": "acomplexkey",
+    "SIGNING_KEY": "acomplexkey",  # Todo
     "ALGORITHM": "HS512",
 }
 
@@ -99,6 +99,10 @@ INSTALLED_APPS = [
     "corsheaders",
 
     "actor",
+    "agent",
+    "project",
+    "role",
+    "session",
     "useraccount",
 ]
 

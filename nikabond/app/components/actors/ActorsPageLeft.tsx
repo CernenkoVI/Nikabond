@@ -3,7 +3,8 @@ import Image from "next/image";
 import apiService from "@/app/services/apiService";
 
 const ActorsPageLeft = async ({params}: {params: {id: string}}) => {
-    const actor = await apiService.get(`/api/actors/${params.id}`)
+    const { id } = await params;
+    const actor = await apiService.get(`/api/actors/${id}`)
 
     return (
         <div className="my-2 flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0">

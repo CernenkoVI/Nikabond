@@ -28,12 +28,12 @@ class CustomUserManager(UserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True)
-    username = models.CharField(max_length=150, blank=True, null=True)
+    email = models.EmailField(unique=True) # 
+    username = models.CharField(max_length=150, blank=True, null=True)  # Todo change to match email
     name = models.CharField(max_length=255, blank=True, null=True)
     avatar = models.ImageField(upload_to='uploads/avatars')
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)  # Todo needs to be changed to False for email validation
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 

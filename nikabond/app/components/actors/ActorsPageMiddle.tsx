@@ -1,7 +1,8 @@
 import apiService from "@/app/services/apiService";
 
 const ActorsPageMiddle = async ({params}: {params: {id: string}}) => {
-    const actor = await apiService.get(`/api/actors/${params.id}`)
+    const { id } = await params;
+    const actor = await apiService.get(`/api/actors/${id}`)
 
     return (
         <div className="flex-1 p-4 shadow-xl">

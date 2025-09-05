@@ -67,7 +67,7 @@ class Actor(models.Model):
     height = models.FloatField(null=True, blank=True)
 
     agent = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        'agent.Agent',
         related_name='actors',
         on_delete=models.SET_NULL,
         null=True,

@@ -52,8 +52,8 @@ const SignUpModal = () => {
                 action={submitSignup}
                 className="space-y-4"
             >
-                <input onChange={(e) => setUsername(e.target.value)} placeholder="Your Username" type="email" className="w-full h-[54px] px-4 border border-gray-300 rounded-xl" />
-                <input onChange={(e) => setEmail(e.target.value)} placeholder="Your e-mail address" type="email" className="w-full h-[54px] px-4 border border-gray-300 rounded-xl" />
+                <input onChange={(e) => setUsername(e.target.value)} placeholder="Your e-mail address" type="email" className="w-full h-[54px] px-4 border border-gray-300 rounded-xl" />
+                <input onChange={(e) => setEmail(e.target.value)} placeholder="Confirm e-mail address" type="email" className="w-full h-[54px] px-4 border border-gray-300 rounded-xl" />
                 <input onChange={(e) => setPassword1(e.target.value)} placeholder="Your password" type="password" className="w-full h-[54px] px-4 border border-gray-300 rounded-xl" />
                 <input onChange={(e) => setPassword2(e.target.value)} placeholder="Confirm password" type="password" className="w-full h-[54px] px-4 border border-gray-300 rounded-xl" />
 

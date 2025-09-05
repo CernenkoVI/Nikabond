@@ -1,10 +1,40 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ProjectPageRoleItem from "../projects/ProjectPageRoleItem";
 
+export type RoleType = {
+    id: string;
+    name: string;
+    description: string;
+    image_url: string;
+    project_id: number;
+}
+
 const MyRolesComponent = () => {
+    const[roles,setRoles] = useState<RoleType[]>([]);
+
+    const getRoles = async () => {
+        const url = 'http://localhost:8000/api/roles/';
+        await fetch(url, {
+            method: 'GET',
+        })
+            .then(response => response.json())
+            .then((json) => {
+                console.log('json',json)
+
+                setRoles(json.data)
+            })
+            .catch((error) => {
+                console.log('error',error)
+            })
+    };
+
+    useEffect(() => {
+        getRoles();
+    }, []);
+
     const [isOpen, setIsOpen] = useState(false); // collapsed by default
 
     const toggleOpen = () => setIsOpen(prev => !prev);
@@ -28,9 +58,17 @@ const MyRolesComponent = () => {
                         transition={{ duration: 0.4, ease: "easeInOut" }}
                         className="overflow-hidden space-y-2"
                     >
-                        <ProjectPageRoleItem />
-                        <ProjectPageRoleItem />
-                        <ProjectPageRoleItem />
+
+                        {roles.map((role) => {
+                            return (
+                                <ProjectPageRoleItem
+                                    key={role.id}
+                                    role={role}
+                                />
+                            )
+                        })}
+
+
                     </motion.div>
                 )}
             </AnimatePresence>
