@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 
 from .models import Agent
 from .serializers import AgentsDetailSerilizer
+from .serializers import AgentsListSerializer
 
 
 
@@ -15,3 +16,15 @@ def agents_detail(request, pk):
 
     serializer = AgentsDetailSerilizer(agent, many=False)
     return JsonResponse(serializer.data)
+
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def agents_list(request):
+    agents = Agent.objects.all()
+    serializer = AgentsListSerializer(agents, many=True)
+
+    return JsonResponse({
+        'data': serializer.data
+    })

@@ -13,3 +13,12 @@ class AgentsDetailSerilizer(serializers.ModelSerializer):
             'phone',
             'image_url',
         )
+
+class AgentsListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Agent
+        fields = (
+            'id',
+            'image_url',
+            'name',
+        )

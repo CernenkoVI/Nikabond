@@ -11,6 +11,8 @@ class ProjectsListSerializer(serializers.ModelSerializer):
             'id',
             'image_url',
             'name',
+            'shooting_start',
+            'shooting_end',
             'description'
         )
 

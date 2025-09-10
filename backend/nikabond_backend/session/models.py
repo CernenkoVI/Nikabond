@@ -12,7 +12,7 @@ class Session(models.Model):
     description = models.CharField(max_length=255, default=None)
 
     project = models.ForeignKey(
-        'role.Role',
+        'project.Project',
         related_name='sessions',
         on_delete=models.CASCADE,
         null=True,

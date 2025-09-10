@@ -7,7 +7,7 @@ import useAddPortfolioModal from "../hooks/useAddPortfolioModal";
 
 const MyActorsComponent = () => {
     const addPortfolioModal = useAddPortfolioModal();
-    const nikabondPortfolio = () => {
+    const actorPortfolio = () => {
         addPortfolioModal.open()
     }
 
@@ -26,7 +26,7 @@ const MyActorsComponent = () => {
                 </h1>
 
                 <button 
-                    onClick={nikabondPortfolio}
+                    onClick={actorPortfolio}
                     className="cursor-pointer text-lime-500 p-4 hover:text-lime-600"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">

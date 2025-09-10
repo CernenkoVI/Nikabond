@@ -10,7 +10,6 @@ class SessionsListSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
-            'description',
             'start',
             'end',
         )
@@ -27,4 +26,5 @@ class SessionDetailSerializer(serializers.ModelSerializer):
             'description',
             'start',
             'end',
+            'project',
         )
