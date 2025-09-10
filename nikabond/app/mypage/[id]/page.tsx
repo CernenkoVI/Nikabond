@@ -4,6 +4,7 @@ import MyActorsComponent from "@/app/components/mypage/MyActorsComponent";
 import MyCollectionsComponent from "@/app/components/mypage/MyCollectionsComponent";
 import MyProjectsComponent from "@/app/components/mypage/MyProjectsComponent";
 import MyRolesComponent from "@/app/components/mypage/MyRolesComponent";
+import MyAgentsComponent from "@/app/components/mypage/MyAgentsComponent";
 
 const MyPage = () => {
     return (
@@ -19,6 +20,8 @@ const MyPage = () => {
 
             <MyRolesComponent />
 
+            <MyAgentsComponent />
+            
             <Link href="/inbox/1">
                 <h1 className="my-2 mb-2 text-xl cursor-pointer select-none w-[200px] rounded-xl bg-lime-100 p-2">Inbox</h1>
             </Link>
