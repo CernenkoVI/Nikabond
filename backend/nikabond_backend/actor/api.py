@@ -35,7 +35,7 @@ def create_portfolio(request):
 
     if form.is_valid():
         actor = form.save(commit=False)
-        actor.agent = request.user
+#        actor.agent = request.user
         actor.save()
 
         return JsonResponse({'success': True})

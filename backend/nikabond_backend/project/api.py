@@ -1,9 +1,11 @@
 from django.http import JsonResponse
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import AllowAny
 
 from .models import Project
 from .serializers import ProjectsListSerializer, ProjectDetailSerializer
+from .forms import ProjectForm
 
 @api_view(['GET'])
 @authentication_classes([])
@@ -25,3 +27,18 @@ def project_detail(request, pk):
 
     serializer = ProjectDetailSerializer(project, many=False)
     return JsonResponse(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_project(request):
+    form = ProjectForm(request.POST, request.FILES)
+
+    if form.is_valid():
+        project = form.save(commit=False)
+        project.save()
+
+        return JsonResponse({'success': True})
+    else:
+        print('error', form.errors, form.non_field_errors)
+        return JsonResponse({'errors': form.errors.as_json()}, status=400)

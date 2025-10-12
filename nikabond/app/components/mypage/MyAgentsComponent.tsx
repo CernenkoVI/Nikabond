@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import AgentsListItem from "../agents/AgentsListItem";
 import AgentsList, { AgentType } from "../agents/AgentsList"; // reuse existing type
 import apiService from "@/app/services/apiService";
+import useAddAgentModal from "../hooks/useAddAgentModal";
 
 const MyAgentsComponent = () => {
     const [agents, setAgents] = useState<AgentType[]>([]);
@@ -30,6 +31,12 @@ const MyAgentsComponent = () => {
 
     const toggleOpen = () => setIsOpen((prev) => !prev);
 
+    const addAgentModal = useAddAgentModal();
+
+    const addAgent = () => {
+        addAgentModal.open()
+    }
+
     return (
         <>
             {/* Header with toggle */}
@@ -42,6 +49,7 @@ const MyAgentsComponent = () => {
                 </h1>
 
                 <button 
+                    onClick={addAgent}
                     className="cursor-pointer text-lime-500 p-4 hover:text-lime-600"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">

@@ -14,11 +14,11 @@ const Logo = () => {
                     priority
                 />
 
-                <div className="pr-1 py-1 flex flex-row items-center justify-between">
+                <div className="pr-1 px-1 flex flex-row items-center justify-between">
 
                     <div className="p-2 hidden lg:block pl-0">
                         <div className="pt-4 text-xl font-bold">
-                            <p>W.T.F.M.I.</p>
+                            <p>WTFMI</p>
                         </div>
                         <div className="pb-4 text-l font-semibold">
                             <p>Casting</p>

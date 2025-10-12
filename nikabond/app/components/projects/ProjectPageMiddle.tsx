@@ -3,6 +3,7 @@ import ProjectPageRoleItem from "./ProjectPageRoleItem";
 import { useState, useEffect } from "react";
 import { RoleType } from "../mypage/MyRolesComponent";
 
+
 const ProjectPageMiddle = () => {
     const[roles,setRoles] = useState<RoleType[]>([]);
 

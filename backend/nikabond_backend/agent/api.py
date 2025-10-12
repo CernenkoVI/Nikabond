@@ -1,10 +1,12 @@
 from django.http import JsonResponse
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import AllowAny
 
 from .models import Agent
 from .serializers import AgentsDetailSerilizer
 from .serializers import AgentsListSerializer
+from .forms import AgentForm
 
 
 
@@ -28,3 +30,17 @@ def agents_list(request):
     return JsonResponse({
         'data': serializer.data
     })
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_agent(request):
+    form = AgentForm(request.POST, request.FILES)
+
+    if form.is_valid():
+        agent = form.save(commit=False)
+        agent.save()
+
+        return JsonResponse({'success': True})
+    else:
+        print('error', form.errors, form.non_field_errors)
+        return JsonResponse({'errors': form.errors.as_json()}, status=400)
