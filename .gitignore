@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+db.sqlite3-journal
+/backend/nikabond_backend/media/
+/backend/nikabond_backend/staticfiles/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+backend/nikabond_backend/.env
+backend/nikabond_backend/.env.*
+!backend/nikabond_backend/.env.example
+
+# Virtual environments
+venv/
+env/
+ENV/
+backend/nikabond_backend/env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+*.log
+
+# Frontend (Next.js)
+node_modules/
+.next/
+out/
+build/

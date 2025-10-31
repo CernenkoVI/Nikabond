@@ -274,7 +274,7 @@ const AddProjectModal = () => {
                     <PreviousButton 
                         label='Previous'
                         className="mb-2"
-                        onClick = {() => setCurrentStep(4)}
+                        onClick = {() => setCurrentStep(3)}
                     />                
                     <SubmitButton
                         label='Submit'
