@@ -32,7 +32,7 @@ const MODAL_LABELS: Record<string, string> = {
 const AdvancedFilters = () => {
     const [activeModal, setActiveModal] = useState<FilterCategory>(null);
     const [nameInput, setNameInput] = useState('');
-    const { filters, setFilter, nameQuery, setNameQuery, applyFilters, clearAll } = useActorFilters();
+    const { filters, appliedFilters, setFilter, nameQuery, setNameQuery, applyFilters, clearAll } = useActorFilters();
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -90,11 +90,65 @@ const AdvancedFilters = () => {
         }
     };
 
+    const getAppliedFilterTags = (): { label: string; value: string }[] => {
+        const tags: { label: string; value: string }[] = [];
+        if (appliedFilters.ethnicity.length) {
+            tags.push({
+                label: 'Ethnicity',
+                value: appliedFilters.ethnicity
+                    .map((v) => ETHNICITY_OPTIONS.find((o) => o.value === v)?.label)
+                    .filter(Boolean)
+                    .join(', '),
+            });
+        }
+        if (appliedFilters.gender.length) {
+            tags.push({
+                label: 'Gender',
+                value: appliedFilters.gender
+                    .map((v) => GENDER_OPTIONS.find((o) => o.value === v)?.label)
+                    .filter(Boolean)
+                    .join(', '),
+            });
+        }
+        if (appliedFilters.age) {
+            const val = appliedFilters.ageRange
+                ? `${appliedFilters.age} +/- ${appliedFilters.ageRange}`
+                : `${appliedFilters.age}`;
+            tags.push({ label: 'Age', value: val });
+        }
+        if (appliedFilters.language) {
+            tags.push({ label: 'Language', value: appliedFilters.language });
+        }
+        if (appliedFilters.height) {
+            const val = appliedFilters.heightRange
+                ? `${appliedFilters.height} +/- ${appliedFilters.heightRange} cm`
+                : `${appliedFilters.height} cm`;
+            tags.push({ label: 'Height', value: val });
+        }
+        if (appliedFilters.haircolor) {
+            tags.push({ label: 'Hair color', value: appliedFilters.haircolor });
+        }
+        if (appliedFilters.hairstyle) {
+            tags.push({ label: 'Hairstyle', value: appliedFilters.hairstyle });
+        }
+        if (appliedFilters.eyecolor) {
+            tags.push({ label: 'Eye color', value: appliedFilters.eyecolor });
+        }
+        if (appliedFilters.skills) {
+            tags.push({ label: 'Skills', value: appliedFilters.skills });
+        }
+        if (nameQuery) {
+            tags.push({ label: 'Name', value: nameQuery });
+        }
+        return tags;
+    };
+
     const closeModal = () => setActiveModal(null);
 
     const handleModalSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         closeModal();
+        applyFilters();
     };
 
     const renderModalContent = () => {
@@ -315,10 +369,6 @@ const AdvancedFilters = () => {
         );
     };
 
-    const handleApply = () => {
-        applyFilters();
-    };
-
     const handleClear = () => {
         setNameInput('');
         clearAll();
@@ -449,33 +499,36 @@ const AdvancedFilters = () => {
             </div>
 
             <div className="pb-2 flex items-center justify-center gap-2 border-b-2 border-white">
-                <div className="flex items-center border border-gray-300 rounded-full bg-white overflow-hidden">
+                <div className="flex items-center border-2 border-lime-600/30 rounded-full bg-white overflow-hidden h-11">
                     <img src="/search.png" alt="Search" className="w-4 h-4 min-w-4 ml-4 opacity-50" />
                     <input
                         type="text"
                         value={nameInput}
                         onChange={(e) => setNameInput(e.target.value)}
                         placeholder="Search by name"
-                        className="px-3 py-3 text-sm text-gray-700 outline-none bg-transparent w-48"
+                        className="px-3 text-sm text-gray-700 outline-none bg-transparent w-48"
                     />
                 </div>
-                <div className="p-2">
-                    <div
-                        className="cursor-pointer p-4 bg-lime-500/75 rounded-full text-black text-sm font-semibold hover:bg-lime-500"
-                        onClick={handleApply}
-                    >
-                        Apply&nbsp;filters
-                    </div>
-                </div>
-                <div className="p-2">
-                    <div
-                        className="cursor-pointer p-4 bg-gray-300 rounded-full text-black text-sm font-semibold hover:bg-gray-400"
-                        onClick={handleClear}
-                    >
-                        Clear&nbsp;all
-                    </div>
+                <div
+                    className="cursor-pointer h-11 px-5 flex items-center border-2 border-lime-600/30 rounded-full text-lime-700 text-sm font-semibold bg-lime-100 hover:bg-lime-50"
+                    onClick={handleClear}
+                >
+                    Clear&nbsp;all&nbsp;filters
                 </div>
             </div>
+
+            {getAppliedFilterTags().length > 0 && (
+                <div className="py-2 flex flex-wrap items-center justify-center gap-2">
+                    {getAppliedFilterTags().map((tag) => (
+                        <span
+                            key={tag.label}
+                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-lime-100 text-lime-800 text-xs font-medium"
+                        >
+                            <span className="font-semibold">{tag.label}:</span> {tag.value}
+                        </span>
+                    ))}
+                </div>
+            )}
 
             {activeModal && (
                 <Modal

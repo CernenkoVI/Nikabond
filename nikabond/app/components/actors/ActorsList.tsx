@@ -41,11 +41,17 @@ export type ActorType = {
     };
 };
 
+const ITEMS_PER_PAGE = 14;
+
 const ActorsList = ({ roleId }: { roleId?: string }) => {
     const [actors, setActors] = useState<ActorType[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
     const { appliedFilters, nameQuery, applyVersion } = useActorFilters();
+
+    const totalPages = Math.ceil(actors.length / ITEMS_PER_PAGE);
+    const paginatedActors = actors.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
     const getActors = async () => {
         setLoading(true);
@@ -76,6 +82,7 @@ const ActorsList = ({ roleId }: { roleId?: string }) => {
             const url = queryString ? `/api/actors/?${queryString}` : '/api/actors/';
             const tmpActors = await apiService.get(url);
             setActors(tmpActors.data);
+            setPage(1);
         } catch (e) {
             setError('Failed to load actors.');
         } finally {
@@ -101,9 +108,43 @@ const ActorsList = ({ roleId }: { roleId?: string }) => {
 
     return (
         <>
-            {actors.map((actor) => {
+            {paginatedActors.map((actor) => {
                 return <ActorsListItem key={actor.id} actor={actor} />;
             })}
+
+            {totalPages > 1 && (
+                <div className="col-span-full flex items-center justify-center gap-2 pt-6 pb-2">
+                    <button
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-lime-50"
+                    >
+                        Previous
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                        <button
+                            key={p}
+                            onClick={() => setPage(p)}
+                            className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+                                p === page
+                                    ? 'bg-lime-100'
+                                    : 'hover:bg-gray-100'
+                            }`}
+                        >
+                            {p}
+                        </button>
+                    ))}
+
+                    <button
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-lime-50"
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
         </>
     );
 };
