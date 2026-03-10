@@ -45,7 +45,7 @@ const ActorsList = ({ roleId }: { roleId?: string }) => {
     const [actors, setActors] = useState<ActorType[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { appliedFilters, applyVersion } = useActorFilters();
+    const { appliedFilters, nameQuery, applyVersion } = useActorFilters();
 
     const getActors = async () => {
         setLoading(true);
@@ -53,6 +53,7 @@ const ActorsList = ({ roleId }: { roleId?: string }) => {
         try {
             const params = new URLSearchParams();
             if (roleId) params.set('role', roleId);
+            if (nameQuery) params.set('name', nameQuery);
             if (appliedFilters.ethnicity.length) params.set('ethnicity', appliedFilters.ethnicity.join(','));
             if (appliedFilters.gender.length) params.set('gender', appliedFilters.gender.join(','));
             if (appliedFilters.age) {

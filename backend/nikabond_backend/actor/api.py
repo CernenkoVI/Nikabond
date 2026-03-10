@@ -20,6 +20,11 @@ def actors_list(request):
     else:
         actors = Actor.objects.all()
 
+    # Name filter (substring match)
+    name = request.query_params.get('name')
+    if name:
+        actors = actors.filter(name__icontains=name)
+
     # Gender filter (comma-separated values)
     gender = request.query_params.get('gender')
     if gender:
