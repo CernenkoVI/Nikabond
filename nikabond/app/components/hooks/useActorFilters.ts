@@ -31,8 +31,10 @@ const emptyFilters: ActorFilters = {
 interface ActorFiltersStore {
     filters: ActorFilters;
     appliedFilters: ActorFilters;
+    nameQuery: string;
     applyVersion: number;
     setFilter: <K extends keyof ActorFilters>(key: K, value: ActorFilters[K]) => void;
+    setNameQuery: (name: string) => void;
     applyFilters: () => void;
     clearAll: () => void;
 }
@@ -40,10 +42,16 @@ interface ActorFiltersStore {
 const useActorFilters = create<ActorFiltersStore>((set) => ({
     filters: { ...emptyFilters },
     appliedFilters: { ...emptyFilters },
+    nameQuery: '',
     applyVersion: 0,
     setFilter: (key, value) =>
         set((state) => ({
             filters: { ...state.filters, [key]: value },
+        })),
+    setNameQuery: (name) =>
+        set((state) => ({
+            nameQuery: name,
+            applyVersion: state.applyVersion + 1,
         })),
     applyFilters: () =>
         set((state) => ({
@@ -54,6 +62,7 @@ const useActorFilters = create<ActorFiltersStore>((set) => ({
         set((state) => ({
             filters: { ...emptyFilters },
             appliedFilters: { ...emptyFilters },
+            nameQuery: '',
             applyVersion: state.applyVersion + 1,
         })),
 }));

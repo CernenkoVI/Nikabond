@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Modal from './modals/Modal';
 import useActorFilters from './hooks/useActorFilters';
 
@@ -31,7 +31,19 @@ const MODAL_LABELS: Record<string, string> = {
 
 const AdvancedFilters = () => {
     const [activeModal, setActiveModal] = useState<FilterCategory>(null);
-    const { filters, setFilter, applyFilters, clearAll } = useActorFilters();
+    const [nameInput, setNameInput] = useState('');
+    const { filters, setFilter, nameQuery, setNameQuery, applyFilters, clearAll } = useActorFilters();
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            if (nameInput !== nameQuery) {
+                setNameQuery(nameInput);
+            }
+        }, 300);
+        return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    }, [nameInput]);
 
     const toggleArrayFilter = (key: 'ethnicity' | 'gender', value: string) => {
         const current = filters[key];
@@ -308,6 +320,7 @@ const AdvancedFilters = () => {
     };
 
     const handleClear = () => {
+        setNameInput('');
         clearAll();
     };
 
@@ -435,7 +448,17 @@ const AdvancedFilters = () => {
                 />
             </div>
 
-            <div className="pb-2 flex justify-center border-b-2 border-white">
+            <div className="pb-2 flex items-center justify-center gap-2 border-b-2 border-white">
+                <div className="flex items-center border border-gray-300 rounded-full bg-white overflow-hidden">
+                    <img src="/search.png" alt="Search" className="w-4 h-4 min-w-4 ml-4 opacity-50" />
+                    <input
+                        type="text"
+                        value={nameInput}
+                        onChange={(e) => setNameInput(e.target.value)}
+                        placeholder="Search by name"
+                        className="px-3 py-3 text-sm text-gray-700 outline-none bg-transparent w-48"
+                    />
+                </div>
                 <div className="p-2">
                     <div
                         className="cursor-pointer p-4 bg-lime-500/75 rounded-full text-black text-sm font-semibold hover:bg-lime-500"

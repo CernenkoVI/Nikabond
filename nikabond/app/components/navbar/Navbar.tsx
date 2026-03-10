@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Logo from './Logo';
-import SearchFilters from './SearchFilters';
 import User from './User';
 import { getUserId } from '@/app/lib/actions';
 
@@ -12,10 +11,6 @@ const Navbar = async () => {
                 <div className="flex justify-between items-center">
                     <div className="px-1">
                         <Logo />
-                    </div>
-
-                    <div className="flex space-x-6">
-                        <SearchFilters />
                     </div>
 
                     <div className="ml-2 flex items-center space-x-2">
