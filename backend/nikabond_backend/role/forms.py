@@ -10,4 +10,5 @@ class RoleForm(ModelForm):
             'description',
             'image',
             'project',
+            'actors',
         }

@@ -8,7 +8,7 @@ from useraccount.models import User
 # Create your models here.
 class Project(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    image = models.ImageField(upload_to='uploads/projects')
+    image = models.ImageField(upload_to='uploads/projects', blank=True, default='')
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, default=None)
 
@@ -25,4 +25,6 @@ class Project(models.Model):
 
 
     def image_url(self):
-        return f'{settings.WEBSITE_URL}{self.image.url}'
+        if self.image:
+            return f'{settings.WEBSITE_URL}{self.image.url}'
+        return f'{settings.WEBSITE_URL}/media/uploads/placeholders/project.png'

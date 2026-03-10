@@ -25,7 +25,7 @@ const MyProjectsComponentItem:React.FC<ProjectProps> = ({
                     />
                 </div>
             </div>
-            <div className="col-span-4 md:col-span-6 lg:col-span-8 space-y-2 bg-lime-100 rounded-xl">
+            <div className="col-span-4 md:col-span-6 lg:col-span-8 space-y-2 p-4 bg-lime-100 rounded-xl">
                 <h2 className="text-xl">{project.name}</h2>
                 <p><strong>{`${project.shooting_start}`}</strong> thru <strong>{`${project.shooting_end}`}</strong></p>
                 <p>{project.description}</p>

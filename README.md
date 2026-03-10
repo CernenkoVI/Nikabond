@@ -110,6 +110,7 @@ Nikabond/
 │   │   ├── agents/[id]/           # Agent detail page
 │   │   ├── projects/[id]/         # Project detail page
 │   │   ├── roles/[id]/            # Role detail page
+│   │   ├── sessions/[id]/         # Session detail page
 │   │   ├── mypage/[id]/           # User dashboard
 │   │   ├── inbox/[id]/            # Messaging (WIP)
 │   │   ├── components/            # UI components by feature
@@ -131,16 +132,24 @@ Nikabond/
 | GET    | `/api/actors/`         | List all actors      | No       |
 | GET    | `/api/actors/<id>/`    | Actor details        | No       |
 | POST   | `/api/actors/create/`  | Create actor profile | No       |
+| PUT    | `/api/actors/<id>/update/` | Update actor     | No       |
 | GET    | `/api/agents/`         | List all agents      | No       |
 | GET    | `/api/agents/<id>/`    | Agent details        | No       |
 | POST   | `/api/agents/create/`  | Create agent         | No       |
+| PUT    | `/api/agents/<id>/update/` | Update agent     | No       |
 | GET    | `/api/projects/`       | List all projects    | No       |
 | GET    | `/api/projects/<id>/`  | Project details      | No       |
 | POST   | `/api/projects/create/`| Create project       | No       |
-| GET    | `/api/roles/`          | List all roles       | No       |
+| PUT    | `/api/projects/<id>/update/` | Update project | No       |
+| GET    | `/api/roles/`          | List roles (filter: `?project=<id>`) | No |
 | GET    | `/api/roles/<id>/`     | Role details         | No       |
-| GET    | `/api/sessions/`       | List all sessions    | No       |
+| POST   | `/api/roles/create/`   | Create role          | No       |
+| PUT    | `/api/roles/<id>/update/` | Update role       | No       |
+| PUT    | `/api/roles/<id>/actors/` | Assign actors to role | No   |
+| GET    | `/api/sessions/`       | List sessions (filter: `?project=<id>`) | No |
 | GET    | `/api/sessions/<id>/`  | Session details      | No       |
+| POST   | `/api/sessions/create/`| Create session       | No       |
+| PUT    | `/api/sessions/<id>/update/` | Update session | No       |
 
 Admin panel: **http://localhost:8000/admin/**
 
@@ -171,11 +180,12 @@ npm run lint                       # ESLint
 - Frontend stores tokens in **HTTP-only cookies** via Next.js Server Actions
 - API service layer (`apiService.ts`) handles all HTTP requests with automatic token injection
 - Modal state managed globally with Zustand hooks
-- Multi-step form wizards for creating actors, agents, and projects
+- Multi-step form wizards for creating actors, agents, projects, roles, and sessions
+- Edit modals for all entities (actors, agents, projects, roles, sessions)
+- Actor assignment to roles
 
 ## Known Issues
 
-- Session API endpoint routes to role URLs instead of session URLs in backend URL config
 - JWT signing key is a placeholder (`"acomplexkey"`) — must be changed for production
 - Email verification is disabled (`ACCOUNT_EMAIL_VERIFICATION = "none"`)
 - No error handling when required data is missing on login form

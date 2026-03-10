@@ -6,7 +6,11 @@
       "Bash(cd D:/Nikabond/nikabond && npx tsc --noEmit 2>&12)",
       "Bash(find /d/Nikabond/nikabond -type d -name \"*role*\" -o -name \"*Role*\" 2>/dev/null | head -20)",
       "Bash(find /d/Nikabond/nikabond -type f -name \"*role*\" -o -name \"*Role*\" 2>/dev/null | grep -v node_modules | grep -v \".next\" | head -30)",
-      "Bash(find /d/Nikabond -path \"*/backend/*role*\" -type f 2>/dev/null | grep -v \".pyc\" | grep -v \"__pycache__\")"
+      "Bash(find /d/Nikabond -path \"*/backend/*role*\" -type f 2>/dev/null | grep -v \".pyc\" | grep -v \"__pycache__\")",
+      "Bash(cd D:/Nikabond/backend && docker-compose exec web python manage.py makemigrations role 2>&1)",
+      "Bash(cd D:/Nikabond/backend && docker-compose exec web python manage.py migrate role 2>&1)",
+      "Bash(cd D:/Nikabond/nikabond && npm run build 2>&1 | tail -25)",
+      "Bash(find /d/Nikabond/nikabond/app/components -maxdepth 1 -name \"*Button*\" -o -name \"*.tsx\" -type f 2>/dev/null | head -20)"
     ],
     "deny": [],
     "ask": []

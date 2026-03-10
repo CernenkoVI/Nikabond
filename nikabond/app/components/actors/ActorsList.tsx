@@ -41,14 +41,15 @@ export type ActorType = {
     };
 }
 
-const ActorsList = () => {
+const ActorsList = ({ roleId }: { roleId?: string }) => {
     const [actors, setActors] = useState<ActorType[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const getActors = async () => {
         try {
-            const tmpActors = await apiService.get('/api/actors/');
+            const url = roleId ? `/api/actors/?role=${roleId}` : '/api/actors/';
+            const tmpActors = await apiService.get(url);
             setActors(tmpActors.data);
         } catch (e) {
             setError('Failed to load actors.');

@@ -1,16 +1,22 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import AllowAny
 
 from .models import Actor
 from .serializers import ActorsListSerializer, ActorsDetailSerializer
-from .forms import PortfolioForm
+from .forms import PortfolioForm, PortfolioEditForm
 
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
 def actors_list(request):
-    actors = Actor.objects.all()
+    role_id = request.query_params.get('role')
+    if role_id:
+        actors = Actor.objects.filter(roles__id=role_id)
+    else:
+        actors = Actor.objects.all()
     serializer = ActorsListSerializer(actors, many=True)
 
     return JsonResponse({
@@ -41,4 +47,18 @@ def create_portfolio(request):
         return JsonResponse({'success': True})
     else:
         print('error', form.errors, form.non_field_errors)
+        return JsonResponse({'errors': form.errors.as_json()}, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def update_actor(request, pk):
+    actor = get_object_or_404(Actor, pk=pk)
+    form = PortfolioEditForm(request.POST, request.FILES, instance=actor)
+
+    if form.is_valid():
+        actor = form.save(commit=False)
+        actor.save()
+        return JsonResponse({'success': True})
+    else:
         return JsonResponse({'errors': form.errors.as_json()}, status=400)

@@ -67,21 +67,28 @@ npm run lint         # ESLint
 /api/actors/                 GET    List actors
 /api/actors/<uuid>/          GET    Actor detail
 /api/actors/create/          POST   Create actor portfolio
+/api/actors/<uuid>/update/   PUT    Update actor
 /api/agents/                 GET    List agents
 /api/agents/<uuid>/          GET    Agent detail
 /api/agents/create/          POST   Create agent
+/api/agents/<uuid>/update/   PUT    Update agent
 /api/projects/               GET    List projects
 /api/projects/<uuid>/        GET    Project detail
 /api/projects/create/        POST   Create project
-/api/roles/                  GET    List roles
+/api/projects/<uuid>/update/ PUT    Update project
+/api/roles/                  GET    List roles (supports ?project=<uuid> filter)
 /api/roles/<uuid>/           GET    Role detail
-/api/sessions/               GET    List sessions
+/api/roles/create/           POST   Create role
+/api/roles/<uuid>/update/    PUT    Update role
+/api/roles/<uuid>/actors/    PUT    Assign actors to role
+/api/sessions/               GET    List sessions (supports ?project=<uuid> filter)
 /api/sessions/<uuid>/        GET    Session detail
+/api/sessions/create/        POST   Create session
+/api/sessions/<uuid>/update/ PUT    Update session
 ```
 
 ### Known Backend Bugs
 
-- **URL routing bug:** `/api/sessions/` includes `role.urls` instead of `session.urls` in root `urls.py`
 - JWT signing key is hardcoded placeholder: `"acomplexkey"`
 - Email verification disabled (`ACCOUNT_EMAIL_VERIFICATION = "none"`)
 - User `is_active` defaults to True (should be False for email verification flow)
@@ -96,16 +103,20 @@ nikabond/app/
 ├── layout.tsx                 # Root layout: Navbar + global modals
 ├── globals.css                # Tailwind imports, custom theme colors
 ├── actors/[id]/page.tsx       # Actor detail (3-column layout)
+├── agents/page.tsx             # Agents listing page
 ├── agents/[id]/page.tsx       # Agent detail + their actors list
 ├── projects/[id]/page.tsx     # Project detail with roles
 ├── roles/[id]/page.tsx        # Role detail
+├── sessions/[id]/page.tsx     # Session detail
 ├── mypage/[id]/page.tsx       # User dashboard (collapsible sections)
 ├── inbox/[id]/page.tsx        # Messaging (WIP)
 ├── components/
-│   ├── actors/                # ActorsList, ActorsListItem, ActorsPage{Left,Middle,Right}
-│   ├── agents/                # AgentsList, AgentsListItem
-│   ├── projects/              # ProjectPage{Left,Middle,Right}, ProjectPageRoleItem
-│   ├── modals/                # Modal, LoginModal, SignupModal, AddPortfolioModal, AddAgentModal, AddProjectModal
+│   ├── actors/                # ActorsList, ActorsListItem, ActorsListSmall, ActorsPage{Left,Middle,Right}, ActorEditButton
+│   ├── agents/                # AgentsList, AgentsListItem, AgentEditButton
+│   ├── projects/              # ProjectPage{Left,Middle,Right}, ProjectPageRoleItem, ProjectEditButton
+│   ├── roles/                 # RoleActorsSection, RoleEditButton
+│   ├── sessions/              # SessionEditButton
+│   ├── modals/                # Modal, Login, Signup, Add/Edit modals for Portfolio, Agent, Project, Role, Session, AssignActors
 │   ├── navbar/                # Navbar, Logo, User, SearchFilters, LoginButton, MenuLink
 │   ├── mypage/                # MyAccountComponent, MyProjectsComponent, MyAgentsComponent, etc.
 │   ├── forms/                 # SelectCountry
@@ -121,22 +132,24 @@ nikabond/app/
 - **Client Components** (`'use client'`) for interactive UI (modals, forms, dropdowns)
 - **Server Actions** in `lib/actions.ts` manage JWT tokens in HTTP-only cookies (`handleLogin`, `resetAuthCookies`, `getUserId`, `getAccessToken`)
 - **Zustand hooks** for global modal state — each modal has an `{isOpen, open, close}` store
-- **Global modals** rendered once in `layout.tsx`: Login, SignUp, AddPortfolio, AddAgent, AddProject
+- **Global modals** rendered once in `layout.tsx`: Login, SignUp, Add/Edit modals for Portfolio, Agent, Project, Role, Session, AssignActors
 - **apiService.ts** has three methods:
   - `get(url)` — authenticated GET with Bearer token from cookies
   - `post(url, data)` — authenticated POST
   - `postWithoutToken(url, data)` — unauthenticated POST (login, register, create)
-- Multi-step **form wizards** in modal components (Portfolio: 3 steps, Agent: 2 steps, Project: 4 steps)
+- Multi-step **form wizards** in modal components (Portfolio: 3 steps, Agent: 2 steps, Project: 4 steps, Role: 2 steps, Session: 2 steps)
 - Dynamic routes use `[id]` pattern with UUID params
 - Images loaded from localhost:8000 via `next.config.ts` remote patterns
 - Custom color theme: `--color-airbnb: #ff385c` and lime-based UI
 
-### Hooks Available (not all have corresponding modals yet)
+### Hooks Available
 
-- `useLoginModal`, `useSignUpModal` — auth modals (implemented)
-- `useAddPortfolioModal`, `useAddAgentModal`, `useAddProjectModal` — creation modals (implemented)
-- `useAddRoleModal`, `useAddSessionModal` — defined but **no modal components built yet**
+- `useLoginModal`, `useSignUpModal` — auth modals
+- `useAddPortfolioModal`, `useAddAgentModal`, `useAddProjectModal`, `useAddRoleModal`, `useAddSessionModal` — creation modals
+- `useEditActorModal`, `useEditAgentModal`, `useEditProjectModal`, `useEditRoleModal`, `useEditSessionModal` — edit modals
+- `useAssignActorsModal` — assign actors to roles
 - `useCountries` — country data from `world-countries` package
+- `useAddRoleModal` and `useAddSessionModal` accept optional `projectId` to auto-assign the parent project
 
 ## Configuration
 
@@ -161,9 +174,7 @@ Per `user_stories.md`, these features are planned but not built:
 - Functional search/filter backend logic (UI exists)
 - Messaging system backend (inbox UI is scaffolded)
 - Notification system (in-app and email)
-- Profile editing
 - Agent-actor invitation and roster management
 - Password reset flow
 - Media uploads beyond single image (video reels, PDFs, multiple photos)
 - Pagination on list endpoints
-- AddRole and AddSession modal components

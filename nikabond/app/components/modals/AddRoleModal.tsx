@@ -34,6 +34,9 @@ const AddRoleModal = () => {
 
     useEffect(() => {
         if (addRoleModal.isOpen) {
+            if (addRoleModal.projectId) {
+                setDataProject(addRoleModal.projectId);
+            }
             const fetchProjects = async () => {
                 try {
                     const url = `${process.env.NEXT_PUBLIC_API_HOST}/api/projects/`;
@@ -67,7 +70,6 @@ const AddRoleModal = () => {
         if (!dataName) validationErrors.push('Name is required.');
         if (!dataDescription) validationErrors.push('Description is required.');
         if (!dataProject) validationErrors.push('Project is required.');
-        if (!dataImage) validationErrors.push('Image is required.');
 
         if (validationErrors.length > 0) {
             setErrors(validationErrors);
@@ -78,14 +80,22 @@ const AddRoleModal = () => {
         formData.append('name', dataName);
         formData.append('description', dataDescription);
         formData.append('project', dataProject);
-        formData.append('image', dataImage!);
+        if (dataImage) {
+            formData.append('image', dataImage);
+        }
 
         try {
             const response = await apiService.postWithoutToken('/api/roles/create/', formData);
 
             if (response.success) {
-                router.push('/mypage/1');
+                setDataName('');
+                setDataDescription('');
+                setDataProject('');
+                setDataImage(null);
+                setCurrentStep(1);
+                setErrors([]);
                 addRoleModal.close();
+                router.push(`/roles/${response.id}`);
             } else {
                 setErrors(['Something went wrong. Please try again.']);
             }

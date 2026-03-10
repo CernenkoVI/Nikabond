@@ -25,11 +25,11 @@ const AgentsListItem: React.FC<AgentProps> = ({
             </div>
 
             <div className="mt-2 ml-2">
-                <p className="text-lg font-bold">{agent.name}</p>
+                <p className="text-lg font-bold line-clamp-1">{agent.name}</p>
             </div>
 
             <div className="mb-2 ml-2">
-                <p className="text-sm">{agent.description}</p>
+                <p className="text-sm line-clamp-2">{agent.description}</p>
             </div>
         </Link>
     )

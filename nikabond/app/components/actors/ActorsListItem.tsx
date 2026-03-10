@@ -29,7 +29,7 @@ const ActorsListItem: React.FC<ActorProps> = ({
             </div>
 
             <div className="mb-2 ml-2">
-                <p className="text-sm">{actor.description}</p>
+                <p className="text-sm line-clamp-2">{actor.description}</p>
             </div>
         </Link>
     )

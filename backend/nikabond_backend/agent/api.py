@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import AllowAny
@@ -43,4 +44,18 @@ def create_agent(request):
         return JsonResponse({'success': True})
     else:
         print('error', form.errors, form.non_field_errors)
+        return JsonResponse({'errors': form.errors.as_json()}, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def update_agent(request, pk):
+    agent = get_object_or_404(Agent, pk=pk)
+    form = AgentForm(request.POST, request.FILES, instance=agent)
+
+    if form.is_valid():
+        agent = form.save(commit=False)
+        agent.save()
+        return JsonResponse({'success': True})
+    else:
         return JsonResponse({'errors': form.errors.as_json()}, status=400)

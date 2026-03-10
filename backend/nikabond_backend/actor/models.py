@@ -25,7 +25,7 @@ class Ethnicity(models.TextChoices):
 class Actor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    image = models.ImageField(upload_to='uploads/actors')
+    image = models.ImageField(upload_to='uploads/actors', blank=True, default='')
 
     name = models.CharField(max_length=255)
     dob = models.DateField(default=None)
@@ -85,7 +85,9 @@ class Actor(models.Model):
     # favourited
 
     def image_url(self):
-        return f'{settings.WEBSITE_URL}{self.image.url}'
+        if self.image:
+            return f'{settings.WEBSITE_URL}{self.image.url}'
+        return f'{settings.WEBSITE_URL}/media/uploads/placeholders/actor.png'
     
     def clean(self):
         from django.core.exceptions import ValidationError

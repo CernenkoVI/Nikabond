@@ -47,7 +47,6 @@ const AddAgentModal = () => {
         if (!dataDescription) validationErrors.push('Description is required.');
         if (!dataPhone) validationErrors.push('Phone is required.');
         if (!dataEmail) validationErrors.push('Email is required.');
-        if (!dataImage) validationErrors.push('Image is required.');
 
         if (validationErrors.length > 0) {
             setErrors(validationErrors);
@@ -59,7 +58,9 @@ const AddAgentModal = () => {
         formData.append('description', dataDescription);
         formData.append('phone', dataPhone);
         formData.append('email', dataEmail);
-        formData.append('image', dataImage!);
+        if (dataImage) {
+            formData.append('image', dataImage);
+        }
 
         try {
             const response = await apiService.postWithoutToken('/api/agents/create/', formData);

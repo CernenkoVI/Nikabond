@@ -36,14 +36,39 @@ def role_detail(request, pk):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+def update_role_actors(request, pk):
+    role = get_object_or_404(Role, pk=pk)
+    actor_ids = request.POST.getlist('actors')
+    role.actors.set(actor_ids)
+    return JsonResponse({'success': True})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def create_role(request):
     form = RoleForm(request.POST, request.FILES)
 
     if form.is_valid():
         role = form.save(commit=False)
         role.save()
+        form.save_m2m()
 
-        return JsonResponse({'success': True})
+        return JsonResponse({'success': True, 'id': str(role.id)})
     else:
         print('error', form.errors, form.non_field_errors)
+        return JsonResponse({'errors': form.errors.as_json()}, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def update_role(request, pk):
+    role = get_object_or_404(Role, pk=pk)
+    form = RoleForm(request.POST, request.FILES, instance=role)
+
+    if form.is_valid():
+        role = form.save(commit=False)
+        role.save()
+        form.save_m2m()
+        return JsonResponse({'success': True})
+    else:
         return JsonResponse({'errors': form.errors.as_json()}, status=400)

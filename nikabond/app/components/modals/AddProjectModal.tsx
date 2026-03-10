@@ -60,7 +60,6 @@ const AddProjectModal = () => {
         if (!dataTryonsEnd) validationErrors.push('Try-ons end date is required.');
         if (!dataRehearsalStart) validationErrors.push('Rehearsal start date is required.');
         if (!dataRehearsalEnd) validationErrors.push('Rehearsal end date is required.');
-        if (!dataImage) validationErrors.push('Image is required.');
 
         if (validationErrors.length > 0) {
             setErrors(validationErrors);
@@ -78,7 +77,9 @@ const AddProjectModal = () => {
         formData.append('tryons_end', dataTryonsEnd);
         formData.append('rehearsal_start', dataRehearsalStart);
         formData.append('rehearsal_end', dataRehearsalEnd);
-        formData.append('image', dataImage!);
+        if (dataImage) {
+            formData.append('image', dataImage);
+        }
 
         try {
             const response = await apiService.postWithoutToken('/api/projects/create/', formData);

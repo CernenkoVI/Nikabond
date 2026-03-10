@@ -19,6 +19,8 @@ class Session(models.Model):
         blank=True
     )
     
+    roles = models.ManyToManyField('role.Role', related_name='sessions', blank=True)
+
     start = models.DateField()
     end = models.DateField()
 

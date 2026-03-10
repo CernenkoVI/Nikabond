@@ -3,6 +3,8 @@ from rest_framework import serializers
 from .models import Role
 
 from project.serializers import ProjectDetailSerializer
+from actor.serializers import ActorsListSerializer
+
 
 class RolesListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,6 +20,7 @@ class RolesListSerializer(serializers.ModelSerializer):
 
 class RoleDetailSerializer(serializers.ModelSerializer):
     project = ProjectDetailSerializer(read_only=True)
+    actors = ActorsListSerializer(many=True, read_only=True)
 
     class Meta:
         model = Role
@@ -27,4 +30,5 @@ class RoleDetailSerializer(serializers.ModelSerializer):
             'name',
             'description',
             'project',
+            'actors',
         )

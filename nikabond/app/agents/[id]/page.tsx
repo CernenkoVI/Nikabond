@@ -1,5 +1,6 @@
 import Image from "next/image";
 import ActorsListItem from "@/app/components/actors/ActorsListItem";
+import AgentEditButton from "@/app/components/agents/AgentEditButton";
 import apiService from "@/app/services/apiService";
 
 const AgentDetailPage = async ({params}: {params: Promise<{id: string}>}) => {
@@ -12,7 +13,10 @@ const AgentDetailPage = async ({params}: {params: Promise<{id: string}>}) => {
                 <aside className="col-span-1 mb-4">
                     <div className="flex flex-col items-center p-6 rounded-xl bg-lime-100 border border-lime-300 shadow-xl">
 
-                        <h1 className="mb-2 text-2xl font-semibold">{agent.name}</h1>
+                        <div className="flex items-center space-x-2">
+                            <h1 className="mb-2 text-2xl font-semibold">{agent.name}</h1>
+                            <AgentEditButton agentId={id} agentData={agent} />
+                        </div>
 
                         <Image
                             src={agent?.image_url}
