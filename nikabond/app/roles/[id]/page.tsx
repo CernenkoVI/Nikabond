@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import ActorsList from "@/app/components/actors/ActorsList";
+import RoleActorsSection from "@/app/components/roles/RoleActorsSection";
+import RoleEditButton from "@/app/components/roles/RoleEditButton";
 import AttachedMediaButton from "@/app/components/AttachedMediaButton";
 import apiService from "@/app/services/apiService";
 
-const RoleDetailPage = async ({params}: {params: {id: string}}) => {
+const RoleDetailPage = async ({params}: {params: Promise<{id: string}>}) => {
     const { id } = await params;
     const role = await apiService.get(`/api/roles/${id}`);
 
@@ -14,7 +15,10 @@ const RoleDetailPage = async ({params}: {params: {id: string}}) => {
                 <aside className="col-span-1 mb-4">
                     <div className="flex flex-col items-center p-6 rounded-xl bg-lime-100 border border-lime-300 shadow-xl">
 
-                        <h1 className="mb-2 text-2xl font-semibold">{role.name}</h1>
+                        <div className="flex items-center space-x-2">
+                            <h1 className="mb-2 text-2xl font-semibold">{role.name}</h1>
+                            <RoleEditButton roleId={id} roleData={role} />
+                        </div>
 
                         <Image
                             src={role.image_url}
@@ -50,12 +54,7 @@ const RoleDetailPage = async ({params}: {params: {id: string}}) => {
                     </div>
                 </aside>
 
-                <div className="col-span-1 md:col-span-3 pl-0 md:pl:6">
-                    <h1 className="m-2 text-2xl font-semibold">Actors selection</h1>
-                    <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7">
-                        <ActorsList />
-                    </div>
-                </div>
+                <RoleActorsSection roleId={id} />
             </div>
         </main>
     )

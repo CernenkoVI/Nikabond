@@ -4,15 +4,9 @@
 
 
 import { useEffect, useState } from 'react';
-import ActorsListItemSmall from "./ActorsListItem";
+import ActorsListItemSmall from "./ActorsListItemSmall";
 import apiService from '@/app/services/apiService';
-
-export type ActorType = {
-    id: string;
-    name: string;
-    description: string;
-    image_url: string;
-}
+import { ActorType } from "./ActorsList";
 
 const ActorsListSmall = () => {
     const [actors, setActors] = useState<ActorType[]>([]);
@@ -24,7 +18,6 @@ const ActorsListSmall = () => {
     };
 
     useEffect(() => {
-        apiService.get('/api/actors/');
         getActors();
     }, []);
 

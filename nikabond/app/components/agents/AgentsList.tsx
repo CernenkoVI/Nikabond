@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useEffect, useState } from 'react';
 import AgentsListItem from "./AgentsListItem";
 import apiService from '@/app/services/apiService';
@@ -14,20 +13,38 @@ export type AgentType = {
 
 const AgentsList = () => {
     const [agents, setAgents] = useState<AgentType[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const getAgents = async () => {
-        const tmpAgents = await apiService.get('/api/agents/')
-
-        setAgents(tmpAgents.data);
+        try {
+            const tmpAgents = await apiService.get('/api/agents/');
+            setAgents(tmpAgents.data);
+        } catch (e) {
+            setError('Failed to load agents.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
-        apiService.get('/api/agents/');
         getAgents();
     }, []);
 
+    if (loading) {
+        return <p className="col-span-full text-center text-gray-500 py-10">Loading agents...</p>;
+    }
+
+    if (error) {
+        return <p className="col-span-full text-center text-red-500 py-10">{error}</p>;
+    }
+
+    if (agents.length === 0) {
+        return <p className="col-span-full text-center text-gray-500 py-10">No agents found.</p>;
+    }
+
     return (
-        <div className="flex flex-row items-center">
+        <>
             {agents.map((agent) => {
                 return(
                     <AgentsListItem
@@ -35,8 +52,8 @@ const AgentsList = () => {
                         agent={agent}
                     />
                 )
-            })}            
-        </div>
+            })}
+        </>
     )
 }
 

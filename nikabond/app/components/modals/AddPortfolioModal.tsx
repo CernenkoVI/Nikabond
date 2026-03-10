@@ -47,7 +47,6 @@ const AddPortfolioModal = () => {
             dataGender &&
             dataProfession &&
             dataCountry &&
-            dataImage &&
             dataDescription
          ) {
             const formData = new FormData();
@@ -59,7 +58,9 @@ const AddPortfolioModal = () => {
             formData.append('profession', dataProfession);
             formData.append('country', dataCountry.label);
             formData.append('country_code', dataCountry.value);
-            formData.append('image', dataImage);
+            if (dataImage) {
+                formData.append('image', dataImage);
+            }
             formData.append('description', dataDescription);
 
             const response = await apiService.post('/api/actors/create/', formData);

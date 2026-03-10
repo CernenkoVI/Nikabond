@@ -1,17 +1,24 @@
 import Image from "next/image";
-const ActorsListItemSmall = () => {
+import Link from "next/link";
+import { ActorType } from "./ActorsList";
+
+interface ActorSmallProps {
+    actor: ActorType;
+}
+
+const ActorsListItemSmall: React.FC<ActorSmallProps> = ({ actor }) => {
     return (
-        <div className="w-15 h-15 cursor-pointer rounded-xl">
+        <Link href={`/actors/${actor.id}`} className="w-15 h-15 cursor-pointer rounded-xl">
             <div className="relative overflow-hidden aspect-square rounded-xl">
                 <Image
                     fill
-                    src='/moi.png'
-                    sizes="(max-width: 768px) 768px, (max-width: 1200px) 768px, 768px"
+                    src={actor.image_url}
+                    sizes="60px"
                     className="hover:scale-110 object-cover transition h-full w-full"
-                    alt='Le moi'
+                    alt={actor.name}
                 />
             </div>
-        </div>
+        </Link>
     )
 }
 

@@ -23,6 +23,7 @@ const AddAgentModal = () => {
     const [dataImage, setDataImage] = useState<File | null>(null);
 
     const [currentStep, setCurrentStep] = useState(1);
+    const [errors, setErrors] = useState<string[]>([]);
 
     const addAgentModal = useAddAgentModal();
 
@@ -39,31 +40,39 @@ const AddAgentModal = () => {
         // Submit
 
     const submitForm = async () => {
-        console.log('submit Form')
+        setErrors([]);
 
-        if (
-            dataName &&
-            dataDescription &&
-            dataPhone &&
-            dataEmail &&
-            dataImage
-        ) {
-            const formData = new FormData();
-            formData.append('name',dataName);
-            formData.append('description',dataDescription);
-            formData.append('phone',dataPhone);
-            formData.append('email',dataEmail);
-            formData.append('image',dataImage);
+        const validationErrors: string[] = [];
+        if (!dataName) validationErrors.push('Name is required.');
+        if (!dataDescription) validationErrors.push('Description is required.');
+        if (!dataPhone) validationErrors.push('Phone is required.');
+        if (!dataEmail) validationErrors.push('Email is required.');
 
+        if (validationErrors.length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', dataName);
+        formData.append('description', dataDescription);
+        formData.append('phone', dataPhone);
+        formData.append('email', dataEmail);
+        if (dataImage) {
+            formData.append('image', dataImage);
+        }
+
+        try {
             const response = await apiService.postWithoutToken('/api/agents/create/', formData);
 
             if (response.success) {
-                console.log('Success!');
                 router.push('/mypage/1');
                 addAgentModal.close();
             } else {
-                console.log('Error');
+                setErrors(['Something went wrong. Please try again.']);
             }
+        } catch (e) {
+            setErrors(['Failed to create agent. Please check your connection and try again.']);
         }
     }
 
@@ -144,7 +153,7 @@ const AddAgentModal = () => {
                             <div className='w-[200-px] h-[150px] relative'>
                                 <Image
                                     fill
-                                    alt='Upladed image'
+                                    alt='Uploaded image'
                                     src={URL.createObjectURL(dataImage)}
                                     className='w-full object-cover rounded-xl'
                                 />
@@ -152,11 +161,19 @@ const AddAgentModal = () => {
                         )}
                     </div>
 
-                    <PreviousButton 
+                    {errors.length > 0 && (
+                        <div className="py-2">
+                            {errors.map((error, index) => (
+                                <p key={index} className="text-sm text-red-500">{error}</p>
+                            ))}
+                        </div>
+                    )}
+
+                    <PreviousButton
                         label='Previous'
                         className="mb-2"
                         onClick = {() => setCurrentStep(1)}
-                    />                
+                    />
                     <SubmitButton
                         label='Submit'
                         onClick={submitForm}

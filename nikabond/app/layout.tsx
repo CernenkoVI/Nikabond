@@ -7,6 +7,14 @@ import SignUpModal from "./components/modals/SignupModal";
 import AddPortfolioModal from "./components/modals/AddPortfolioModal";
 import AddAgentModal from "./components/modals/AddAgentModal";
 import AddProjectModal from "./components/modals/AddProjectModal";
+import AddRoleModal from "./components/modals/AddRoleModal";
+import AddSessionModal from "./components/modals/AddSessionModal";
+import AssignActorsModal from "./components/modals/AssignActorsModal";
+import EditActorModal from "./components/modals/EditActorModal";
+import EditAgentModal from "./components/modals/EditAgentModal";
+import EditProjectModal from "./components/modals/EditProjectModal";
+import EditRoleModal from "./components/modals/EditRoleModal";
+import EditSessionModal from "./components/modals/EditSessionModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +49,14 @@ export default function RootLayout({
         <AddPortfolioModal />
         <AddAgentModal />
         <AddProjectModal />
+        <AddRoleModal />
+        <AddSessionModal />
+        <AssignActorsModal />
+        <EditActorModal />
+        <EditAgentModal />
+        <EditProjectModal />
+        <EditRoleModal />
+        <EditSessionModal />
       </body>
     </html>
   );

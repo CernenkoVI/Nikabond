@@ -2,7 +2,10 @@ from rest_framework import serializers
 
 from .models import Agent
 
+
 class AgentsDetailSerilizer(serializers.ModelSerializer):
+    actors = serializers.SerializerMethodField()
+
     class Meta:
         model = Agent
         fields = (
@@ -12,7 +15,12 @@ class AgentsDetailSerilizer(serializers.ModelSerializer):
             'email',
             'phone',
             'image_url',
+            'actors',
         )
+
+    def get_actors(self, obj):
+        from actor.serializers import ActorsListSerializer
+        return ActorsListSerializer(obj.actors.all(), many=True).data
 
 class AgentsListSerializer(serializers.ModelSerializer):
     class Meta:

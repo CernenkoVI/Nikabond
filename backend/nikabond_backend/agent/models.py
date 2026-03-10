@@ -10,7 +10,7 @@ from useraccount.models import User
 class Agent(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    image = models.ImageField(upload_to='uploads/agents')
+    image = models.ImageField(upload_to='uploads/agents', blank=True, default='')
 
     name = models.CharField(max_length=255)
 
@@ -23,4 +23,6 @@ class Agent(models.Model):
 
 
     def image_url(self):
-        return f'{settings.WEBSITE_URL}{self.image.url}'
+        if self.image:
+            return f'{settings.WEBSITE_URL}{self.image.url}'
+        return f'{settings.WEBSITE_URL}/media/uploads/placeholders/agent.png'

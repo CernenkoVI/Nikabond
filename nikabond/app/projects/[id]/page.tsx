@@ -2,18 +2,19 @@ import ProjectPageLeft from "@/app/components/projects/ProjectPageLeft";
 import ProjectPageMiddle from "@/app/components/projects/ProjectPageMiddle";
 import ProjectPageRight from "@/app/components/projects/ProjectPageRight";
 
-const ProjectDetailPage = ({ params }: { params: { id: string } }) => {
+const ProjectDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     return (
         <main className="max-w-[1500px] mx-auto px-6 pt-3">
             <div className="my-2 flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0">
                 {/* Left Column: Image */}
-                <ProjectPageLeft params={params}/>
+                <ProjectPageLeft id={id}/>
 
                 {/* Middle Column: Roles */}
-                <ProjectPageMiddle/>
+                <ProjectPageMiddle id={id}/>
 
                 {/* Right Column: Dates */}
-                <ProjectPageRight params={params}/>
+                <ProjectPageRight id={id}/>
             </div>
         </main>
     );

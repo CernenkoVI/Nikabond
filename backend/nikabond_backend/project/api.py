@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import AllowAny
@@ -41,4 +42,18 @@ def create_project(request):
         return JsonResponse({'success': True})
     else:
         print('error', form.errors, form.non_field_errors)
+        return JsonResponse({'errors': form.errors.as_json()}, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def update_project(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    form = ProjectForm(request.POST, request.FILES, instance=project)
+
+    if form.is_valid():
+        project = form.save(commit=False)
+        project.save()
+        return JsonResponse({'success': True})
+    else:
         return JsonResponse({'errors': form.errors.as_json()}, status=400)
