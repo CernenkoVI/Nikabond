@@ -27,7 +27,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Niakbond",
+  title: "Nikabond",
   description: "Casting production platform",
 };
 
