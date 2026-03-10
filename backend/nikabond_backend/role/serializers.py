@@ -11,7 +11,8 @@ class RolesListSerializer(serializers.ModelSerializer):
             'id',
             'image_url',
             'name',
-            'description'
+            'description',
+            'project_id',
         )
 
 

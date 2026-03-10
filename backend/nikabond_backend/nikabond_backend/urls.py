@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/agents/', include('agent.urls')),
     path('api/projects/', include('project.urls')),
     path('api/roles/', include('role.urls')),
-    path('api/sessions/', include('role.urls')),
+    # TODO: uncomment when session app is created
+    # path('api/sessions/', include('session.urls')),
     path('api/auth/', include('useraccount.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

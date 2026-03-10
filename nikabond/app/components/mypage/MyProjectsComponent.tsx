@@ -19,7 +19,7 @@ const MyProjectsComponent = () => {
     const[projects,setProjects] = useState<ProjectType[]>([]);
 
     const getProjects = async () => {
-        const url = 'http://localhost:8000/api/projects/';
+        const url = `${process.env.NEXT_PUBLIC_API_HOST}/api/projects/`;
         await fetch(url, {
             method: 'GET',
         })

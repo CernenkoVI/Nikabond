@@ -1,14 +1,15 @@
 import Image from "next/image";
-import apiService from "@/app/services/apiService";
 
-const ContactButton = async ({params}: {params: {id: string}}) => {
-    const { id } = await params;
-    const actor = await apiService.get(`/api/actors/${id}`)
+interface ContactButtonProps {
+    email?: string;
+    phone?: string;
+}
 
+const ContactButton = ({ email, phone }: ContactButtonProps) => {
     return (
         <div className="mb-2 font-semibold">
-            <p>{actor.email}</p>
-            <p>{actor.phone}</p>
+            <p>{email}</p>
+            <p>{phone}</p>
 
 
             <div className="items-center grid grid-cols-8 rounded-full">
@@ -83,7 +84,7 @@ const ContactButton = async ({params}: {params: {id: string}}) => {
                         sizes="50px"
                     />
                 </div>
-            </div>            
+            </div>
         </div>
     )
 }

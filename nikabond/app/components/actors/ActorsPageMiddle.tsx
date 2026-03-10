@@ -1,26 +1,33 @@
-import apiService from "@/app/services/apiService";
+import { ActorType } from "./ActorsList";
 
-const ActorsPageMiddle = async ({params}: {params: {id: string}}) => {
-    const { id } = await params;
-    const actor = await apiService.get(`/api/actors/${id}`)
+const Field = ({ label, value, suffix }: { label: string; value?: string | number | null; suffix?: string }) => {
+    if (value === null || value === undefined || value === '') return null;
+    return <p><strong>{label}</strong>: {value}{suffix}</p>;
+};
 
+const ActorsPageMiddle = ({ actor }: { actor?: ActorType }) => {
+    if (!actor) return null;
     return (
         <div className="flex-1 p-4 shadow-xl">
             <h1 className="text-3xl">{actor.name}</h1>
-            <p className="mb-2 text-sm font-semibold">{actor.description}</p>
-            <p className="mb-2 text-sm">{actor.info}</p>
-            <p><strong>Gender</strong>: {actor.gender}</p>
-            <p ><strong>Ethnicity</strong>: {actor.ethnicity}</p>
-            <p><strong>Height</strong>: {actor.height}cm</p>
-            <p><strong>Hair color</strong>: {actor.haircolor}</p>
-            <p><strong>Hairstyle</strong>: {actor.hairstyle}</p>
-            <p className="mb-3"><strong>Eye color</strong>: {actor.eyecolor}</p>
-            <p><strong>Acting experience</strong>: {actor.experience}</p>
-            <p><strong>Skills</strong>: {actor.skills}</p>
-            <p><strong>Other occupations</strong>: {actor.occupations}</p>
-            <p className="mb-3"><strong>Driver's licence</strong>: {actor.licence}</p>
-            <p><strong>Languages</strong>: {actor.languages}</p>
-            <p><strong>Country of residence</strong>: {actor.country}</p>
+            {actor.description && <p className="mb-2 text-sm font-semibold">{actor.description}</p>}
+            {actor.info && <p className="mb-2 text-sm">{actor.info}</p>}
+            <Field label="Gender" value={actor.gender} />
+            <Field label="Ethnicity" value={actor.ethnicity} />
+            <Field label="Height" value={actor.height} suffix="cm" />
+            <Field label="Hair color" value={actor.haircolor} />
+            <Field label="Hairstyle" value={actor.hairstyle} />
+            <div className="mb-3">
+                <Field label="Eye color" value={actor.eyecolor} />
+            </div>
+            <Field label="Acting experience" value={actor.experience} />
+            <Field label="Skills" value={actor.skills} />
+            <Field label="Other occupations" value={actor.occupations} />
+            <div className="mb-3">
+                <Field label="Driver's licence" value={actor.licence} />
+            </div>
+            <Field label="Languages" value={actor.languages} />
+            <Field label="Country of residence" value={actor.country} />
         </div>
     )
 }

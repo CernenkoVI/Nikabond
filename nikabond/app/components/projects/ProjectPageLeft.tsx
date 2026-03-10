@@ -3,8 +3,7 @@ import AttachedMediaButton from "../AttachedMediaButton";
 
 import apiService from "@/app/services/apiService";
 
-const ProjectPageLeft = async ({params}: {params: {id: string}}) => {
-    const { id } = params;
+const ProjectPageLeft = async ({ id }: { id: string }) => {
     const project = await apiService.get(`/api/projects/${id}`);
     return (
         <div className="my-2 flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0">

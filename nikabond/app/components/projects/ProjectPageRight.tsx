@@ -1,7 +1,6 @@
 import apiService from "@/app/services/apiService";
 
-const ProjectPageRight = async ({params}: {params: {id: string}}) => {
-    const { id } = params;
+const ProjectPageRight = async ({ id }: { id: string }) => {
     const project = await apiService.get(`/api/projects/${id}`);
     return (
         <div className="my-2 w-full lg:w-[45vh] p-4 bg-lime-100 rounded-xl">

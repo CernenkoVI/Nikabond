@@ -1,11 +1,7 @@
 import Image from "next/image";
+import { ActorType } from "./ActorsList";
 
-import apiService from "@/app/services/apiService";
-
-const ActorsPageLeft = async ({params}: {params: {id: string}}) => {
-    const { id } = await params;
-    const actor = await apiService.get(`/api/actors/${id}`)
-
+const ActorsPageLeft = ({ actor }: { actor: ActorType }) => {
     return (
         <div className="my-2 flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0">
             {/* Left Column: Image */}
@@ -16,7 +12,7 @@ const ActorsPageLeft = async ({params}: {params: {id: string}}) => {
                         fill
                         src={actor?.image_url}
                         className="object-cover w-full h-full"
-                        alt="beautiful face"
+                        alt={actor.name}
                     />
                 </div>
 

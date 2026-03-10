@@ -3,29 +3,50 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 
 import Modal from "./Modal";
-import useAddAgentModal from "../hooks/useAddAgentModal";
+import useAddRoleModal from "../hooks/useAddRoleModal";
 import PreviousButton from "../PreviousButton";
 import SubmitButton from "../SubmitButton";
 
 import apiService from "@/app/services/apiService";
 
-const AddAgentModal = () => {
+type ProjectOption = {
+    id: string;
+    name: string;
+}
+
+const AddRoleModal = () => {
 
     // States
 
     const [dataName, setDataName] = useState('');
     const [dataDescription, setDataDescription] = useState('');
-    const [dataPhone, setDataPhone] = useState('');
-    const [dataEmail, setDataEmail] = useState('');
+    const [dataProject, setDataProject] = useState('');
     const [dataImage, setDataImage] = useState<File | null>(null);
 
+    const [projects, setProjects] = useState<ProjectOption[]>([]);
     const [currentStep, setCurrentStep] = useState(1);
     const [errors, setErrors] = useState<string[]>([]);
 
-    const addAgentModal = useAddAgentModal();
+    const addRoleModal = useAddRoleModal();
+
+    useEffect(() => {
+        if (addRoleModal.isOpen) {
+            const fetchProjects = async () => {
+                try {
+                    const url = `${process.env.NEXT_PUBLIC_API_HOST}/api/projects/`;
+                    const response = await fetch(url, { method: 'GET' });
+                    const json = await response.json();
+                    setProjects(json.data || []);
+                } catch (error) {
+                    console.log('Failed to fetch projects', error);
+                }
+            };
+            fetchProjects();
+        }
+    }, [addRoleModal.isOpen]);
 
     const setImage = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
@@ -45,8 +66,7 @@ const AddAgentModal = () => {
         const validationErrors: string[] = [];
         if (!dataName) validationErrors.push('Name is required.');
         if (!dataDescription) validationErrors.push('Description is required.');
-        if (!dataPhone) validationErrors.push('Phone is required.');
-        if (!dataEmail) validationErrors.push('Email is required.');
+        if (!dataProject) validationErrors.push('Project is required.');
         if (!dataImage) validationErrors.push('Image is required.');
 
         if (validationErrors.length > 0) {
@@ -57,21 +77,20 @@ const AddAgentModal = () => {
         const formData = new FormData();
         formData.append('name', dataName);
         formData.append('description', dataDescription);
-        formData.append('phone', dataPhone);
-        formData.append('email', dataEmail);
+        formData.append('project', dataProject);
         formData.append('image', dataImage!);
 
         try {
-            const response = await apiService.postWithoutToken('/api/agents/create/', formData);
+            const response = await apiService.postWithoutToken('/api/roles/create/', formData);
 
             if (response.success) {
                 router.push('/mypage/1');
-                addAgentModal.close();
+                addRoleModal.close();
             } else {
                 setErrors(['Something went wrong. Please try again.']);
             }
         } catch (e) {
-            setErrors(['Failed to create agent. Please check your connection and try again.']);
+            setErrors(['Failed to create role. Please check your connection and try again.']);
         }
     }
 
@@ -91,11 +110,11 @@ const AddAgentModal = () => {
                                 className="w-full p-4 border border-gray-600 rounded-xl"
                             />
                         </div>
-                    </div>    
+                    </div>
 
                     <div className="py-2 space-y-4">
                         <div className="flex flex-col space-y-2">
-                            <label>Info</label>
+                            <label>Description</label>
                             <input
                                 type="text"
                                 value={dataDescription}
@@ -103,30 +122,23 @@ const AddAgentModal = () => {
                                 className="w-full h-[200px] p-4 border border-gray-600 rounded-xl"
                             />
                         </div>
-                    </div>    
-
-                    <div className="py-2 space-y-4">
-                        <div className="flex flex-col space-y-2">
-                            <label>Phone</label>
-                            <input
-                                type="tel"
-                                value={dataPhone}
-                                pattern="\+?[0-9\s\-\(\)]{7,20}"
-                                onChange={(e) => setDataPhone(e.target.value)}
-                                className="w-full p-4 border border-gray-600 rounded-xl"
-                            />
-                        </div>                    
                     </div>
 
                     <div className="py-2 space-y-4">
                         <div className="flex flex-col space-y-2">
-                            <label>Email</label>
-                            <input
-                                type="email"
-                                value={dataEmail}
-                                onChange={(e) => setDataEmail(e.target.value)}
+                            <label>Project</label>
+                            <select
+                                value={dataProject}
+                                onChange={(e) => setDataProject(e.target.value)}
                                 className="w-full p-4 border border-gray-600 rounded-xl"
-                            />
+                            >
+                                <option value="">Select a project</option>
+                                {projects.map((project) => (
+                                    <option key={project.id} value={project.id}>
+                                        {project.name}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
@@ -176,7 +188,7 @@ const AddAgentModal = () => {
                     <SubmitButton
                         label='Submit'
                         onClick={submitForm}
-                    />                
+                    />
                 </>
             )}
         </>
@@ -185,13 +197,13 @@ const AddAgentModal = () => {
     return (
         <>
             <Modal
-                isOpen={addAgentModal.isOpen}
-                close={addAgentModal.close}
-                label='Create a new Agent portfolio'
+                isOpen={addRoleModal.isOpen}
+                close={addRoleModal.close}
+                label='Create a new Role'
                 content={content}
             />
         </>
     )
 }
 
-export default AddAgentModal;
+export default AddRoleModal;

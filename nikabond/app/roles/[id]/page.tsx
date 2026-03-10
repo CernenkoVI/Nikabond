@@ -4,7 +4,7 @@ import ActorsList from "@/app/components/actors/ActorsList";
 import AttachedMediaButton from "@/app/components/AttachedMediaButton";
 import apiService from "@/app/services/apiService";
 
-const RoleDetailPage = async ({params}: {params: {id: string}}) => {
+const RoleDetailPage = async ({params}: {params: Promise<{id: string}>}) => {
     const { id } = await params;
     const role = await apiService.get(`/api/roles/${id}`);
 
@@ -50,7 +50,7 @@ const RoleDetailPage = async ({params}: {params: {id: string}}) => {
                     </div>
                 </aside>
 
-                <div className="col-span-1 md:col-span-3 pl-0 md:pl:6">
+                <div className="col-span-1 md:col-span-3 pl-0 md:pl-6">
                     <h1 className="m-2 text-2xl font-semibold">Actors selection</h1>
                     <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7">
                         <ActorsList />

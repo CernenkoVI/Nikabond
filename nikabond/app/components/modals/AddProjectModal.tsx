@@ -31,6 +31,8 @@ const AddProjectModal = () => {
     
 
     const [currentStep, setCurrentStep] = useState(1);
+    const [errors, setErrors] = useState<string[]>([]);
+
     const addProjectModal = useAddProjectModal();
     const router = useRouter();
 
@@ -45,43 +47,50 @@ const AddProjectModal = () => {
     // Submit
 
     const submitForm = async () => {
-        console.log('submit Form')
+        setErrors([]);
 
-        if (
-            dataName &&
-            dataDescription &&
-            dataShootingStart &&
-            dataShootingEnd &&
-            dataCallbackStart &&
-            dataCallbackEnd &&
-            dataTryonsStart &&
-            dataTryonsEnd &&
-            dataRehearsalStart &&
-            dataRehearsalEnd &&
-            dataImage
-        ) {
-            const formData = new FormData();
-            formData.append('name',dataName);
-            formData.append('description',dataDescription);
-            formData.append('shooting_start',dataShootingStart);
-            formData.append('shooting_end',dataShootingEnd);
-            formData.append('callback_start',dataCallbackStart);
-            formData.append('callback_end',dataCallbackEnd);
-            formData.append('tryons_start',dataTryonsStart);
-            formData.append('tryons_end',dataTryonsEnd);
-            formData.append('rehearsal_start',dataRehearsalStart);
-            formData.append('rehearsal_end',dataRehearsalEnd);
-            formData.append('image',dataImage);
+        const validationErrors: string[] = [];
+        if (!dataName) validationErrors.push('Project name is required.');
+        if (!dataDescription) validationErrors.push('Description is required.');
+        if (!dataShootingStart) validationErrors.push('Shooting start date is required.');
+        if (!dataShootingEnd) validationErrors.push('Shooting end date is required.');
+        if (!dataCallbackStart) validationErrors.push('Callback start date is required.');
+        if (!dataCallbackEnd) validationErrors.push('Callback end date is required.');
+        if (!dataTryonsStart) validationErrors.push('Try-ons start date is required.');
+        if (!dataTryonsEnd) validationErrors.push('Try-ons end date is required.');
+        if (!dataRehearsalStart) validationErrors.push('Rehearsal start date is required.');
+        if (!dataRehearsalEnd) validationErrors.push('Rehearsal end date is required.');
+        if (!dataImage) validationErrors.push('Image is required.');
 
+        if (validationErrors.length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', dataName);
+        formData.append('description', dataDescription);
+        formData.append('shooting_start', dataShootingStart);
+        formData.append('shooting_end', dataShootingEnd);
+        formData.append('callback_start', dataCallbackStart);
+        formData.append('callback_end', dataCallbackEnd);
+        formData.append('tryons_start', dataTryonsStart);
+        formData.append('tryons_end', dataTryonsEnd);
+        formData.append('rehearsal_start', dataRehearsalStart);
+        formData.append('rehearsal_end', dataRehearsalEnd);
+        formData.append('image', dataImage!);
+
+        try {
             const response = await apiService.postWithoutToken('/api/projects/create/', formData);
 
             if (response.success) {
-                console.log('Success!');
                 router.push('/mypage/1');
                 addProjectModal.close();
             } else {
-                console.log('Error');
+                setErrors(['Something went wrong. Please try again.']);
             }
+        } catch (e) {
+            setErrors(['Failed to create project. Please check your connection and try again.']);
         }
     }
 
@@ -271,15 +280,23 @@ const AddProjectModal = () => {
                         )}
                     </div>
 
-                    <PreviousButton 
+                    {errors.length > 0 && (
+                        <div className="py-2">
+                            {errors.map((error, index) => (
+                                <p key={index} className="text-sm text-red-500">{error}</p>
+                            ))}
+                        </div>
+                    )}
+
+                    <PreviousButton
                         label='Previous'
                         className="mb-2"
                         onClick = {() => setCurrentStep(3)}
-                    />                
+                    />
                     <SubmitButton
                         label='Submit'
                         onClick={submitForm}
-                    />                
+                    />
                 </>
             )}
         </>

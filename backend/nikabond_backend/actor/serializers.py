@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from .models import Actor
 
-from useraccount.serializers import UserDetailSerializer
+from agent.serializers import AgentsDetailSerilizer
 
 class ActorsListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,7 +16,7 @@ class ActorsListSerializer(serializers.ModelSerializer):
 
 
 class ActorsDetailSerializer(serializers.ModelSerializer):
-    agent = UserDetailSerializer(read_only=True)
+    agent = AgentsDetailSerilizer(read_only=True)
     
     class Meta:
         model = Actor
