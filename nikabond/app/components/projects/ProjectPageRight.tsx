@@ -2,13 +2,36 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { format, parseISO } from "date-fns";
 import useAddSessionModal from "../hooks/useAddSessionModal";
+import apiService from "@/app/services/apiService";
+
+const formatDate = (date: string) => {
+    try {
+        return format(parseISO(date), 'd MMM yyyy');
+    } catch {
+        return date;
+    }
+};
+
+type RoleType = {
+    id: string;
+    name: string;
+}
 
 type SessionType = {
     id: string;
     name: string;
     start: string;
     end: string;
+    roles: RoleType[];
+}
+
+type NotificationType = {
+    id: string;
+    author_name: string;
+    body: string;
+    created_at: string;
 }
 
 type ProjectType = {
@@ -27,7 +50,51 @@ type ProjectType = {
 const ProjectPageRight = ({ id }: { id: string }) => {
     const [project, setProject] = useState<ProjectType | null>(null);
     const [sessions, setSessions] = useState<SessionType[]>([]);
+    const [notifications, setNotifications] = useState<NotificationType[]>([]);
+    const [newNotification, setNewNotification] = useState('');
+    const [authorName, setAuthorName] = useState('');
     const addSessionModal = useAddSessionModal();
+
+    const fetchNotifications = useCallback(async () => {
+        try {
+            const url = `${process.env.NEXT_PUBLIC_API_HOST}/api/notifications/?project=${id}`;
+            const res = await fetch(url, { method: 'GET' });
+            const data = await res.json();
+            setNotifications(data.data || []);
+        } catch (error) {
+            console.log('Failed to fetch notifications', error);
+        }
+    }, [id]);
+
+    const submitNotification = async () => {
+        if (!newNotification.trim() || !authorName.trim()) return;
+
+        const formData = new FormData();
+        formData.append('author_name', authorName.trim());
+        formData.append('body', newNotification.trim());
+        formData.append('project', id);
+
+        try {
+            const response = await apiService.postWithoutToken('/api/notifications/create/', formData);
+            if (response.success) {
+                setNewNotification('');
+                fetchNotifications();
+            }
+        } catch (error) {
+            console.log('Failed to create notification', error);
+        }
+    };
+
+    const deleteNotification = async (notificationId: string) => {
+        try {
+            const response = await apiService.deleteWithoutToken(`/api/notifications/${notificationId}/delete/`);
+            if (response.success) {
+                fetchNotifications();
+            }
+        } catch (error) {
+            console.log('Failed to delete notification', error);
+        }
+    };
 
     const fetchSessions = useCallback(async () => {
         try {
@@ -53,7 +120,8 @@ const ProjectPageRight = ({ id }: { id: string }) => {
         };
         fetchData();
         fetchSessions();
-    }, [id, fetchSessions]);
+        fetchNotifications();
+    }, [id, fetchSessions, fetchNotifications]);
 
     if (!project) {
         return <div className="my-2 w-full lg:w-[45vh] p-4 bg-lime-100 rounded-xl">Loading...</div>;
@@ -63,22 +131,34 @@ const ProjectPageRight = ({ id }: { id: string }) => {
         <div className="my-2 w-full lg:w-[45vh] p-4 bg-lime-100 rounded-xl">
             <h1 className="mb-2 text-2xl font-semibold">{`Dates in ${project.name}`}</h1>
 
-            <div className="space-y-1 text-sm">
-                <div className="my-4 flex justify-between">
+            <div className="grid grid-cols-2 gap-3 text-sm mt-4">
+                <div>
                     <span className="ml-2 font-medium">Shooting:</span>
-                    <span className="ml-2 font-medium">{`${project.shooting_start} - ${project.shooting_end}`}</span>
+                    <div className="ml-4 mt-1 text-gray-700">
+                        <p>{formatDate(project.shooting_start)}</p>
+                        <p>{formatDate(project.shooting_end)}</p>
+                    </div>
                 </div>
-                <div className="flex justify-between">
-                    <span className="ml-2">Call-back:</span>
-                    <span>{`${project.callback_start} - ${project.callback_end}`}</span>
-                </div>
-                <div className="flex justify-between">
+                <div>
                     <span className="ml-2">Try-ons:</span>
-                    <span>{`${project.tryons_start} - ${project.tryons_end}`}</span>
+                    <div className="ml-4 mt-1 text-gray-700">
+                        <p>{formatDate(project.tryons_start)}</p>
+                        <p>{formatDate(project.tryons_end)}</p>
+                    </div>
                 </div>
-                <div className="flex justify-between">
+                <div>
+                    <span className="ml-2">Call-back:</span>
+                    <div className="ml-4 mt-1 text-gray-700">
+                        <p>{formatDate(project.callback_start)}</p>
+                        <p>{formatDate(project.callback_end)}</p>
+                    </div>
+                </div>
+                <div>
                     <span className="ml-2">Rehearsal:</span>
-                    <span>{`${project.rehearsal_start} - ${project.rehearsal_end}`}</span>
+                    <div className="ml-4 mt-1 text-gray-700">
+                        <p>{formatDate(project.rehearsal_start)}</p>
+                        <p>{formatDate(project.rehearsal_end)}</p>
+                    </div>
                 </div>
             </div>
 
@@ -93,12 +173,24 @@ const ProjectPageRight = ({ id }: { id: string }) => {
             </div>
 
             {sessions.length > 0 ? (
-                <div className="mt-2 space-y-2">
+                <div className="mt-3 space-y-3">
                     {sessions.map((session) => (
                         <Link key={session.id} href={`/sessions/${session.id}`}>
-                            <div className="p-3 bg-white rounded-xl cursor-pointer hover:bg-lime-50">
+                            <div className="p-3 mb-3 bg-white rounded-xl cursor-pointer hover:bg-lime-50">
                                 <p className="text-sm font-semibold">{session.name}</p>
-                                <p className="text-xs text-gray-500">{`${session.start} - ${session.end}`}</p>
+                                <p className="text-xs text-gray-500">{session.start === session.end ? formatDate(session.start) : `${formatDate(session.start)} - ${formatDate(session.end)}`}</p>
+                                {session.roles && session.roles.length > 0 && (
+                                    <div className="mt-2 flex flex-wrap gap-1">
+                                        {session.roles.map((role) => (
+                                            <span
+                                                key={role.id}
+                                                className="px-2 py-0.5 text-xs bg-lime-100 text-lime-800 rounded-full"
+                                            >
+                                                {role.name}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </Link>
                     ))}
@@ -109,13 +201,53 @@ const ProjectPageRight = ({ id }: { id: string }) => {
 
             <h1 className="mt-4 mb-2 text-xl font-semibold">Notifications</h1>
 
-            <div className="m-2 p-2 text-sm text-black bg-white rounded-xl">
-                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.
+            <div className="mb-3 space-y-2">
+                <input
+                    type="text"
+                    value={authorName}
+                    onChange={(e) => setAuthorName(e.target.value)}
+                    placeholder="Your name"
+                    className="w-full p-2 text-sm border border-gray-300 rounded-xl"
+                />
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        value={newNotification}
+                        onChange={(e) => setNewNotification(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && submitNotification()}
+                        placeholder="Write a notification..."
+                        className="flex-1 p-2 text-sm border border-gray-300 rounded-xl"
+                    />
+                    <button
+                        onClick={submitNotification}
+                        className="w-8 h-8 flex items-center justify-center bg-lime-600 text-white rounded-full hover:bg-lime-700 text-lg font-bold"
+                    >
+                        +
+                    </button>
+                </div>
             </div>
 
-            <div className="m-2 p-2 text-sm text-black bg-white rounded-xl">
-                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.
-            </div>
+            {notifications.length > 0 ? (
+                <div className="space-y-2">
+                    {notifications.map((notification) => (
+                        <div key={notification.id} className="m-2 p-2 text-sm text-black bg-white rounded-xl">
+                            <div className="flex justify-between items-start">
+                                <p className="font-semibold text-xs text-lime-700">{notification.author_name}</p>
+                                <button
+                                    onClick={() => deleteNotification(notification.id)}
+                                    className="text-gray-300 hover:text-red-500 text-xs cursor-pointer"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <p className="mt-1">{notification.body}</p>
+                            <p className="mt-1 text-xs text-gray-400">{formatDate(notification.created_at)}</p>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <p className="text-sm text-gray-500">No notifications yet.</p>
+            )}
         </div>
     )
 }

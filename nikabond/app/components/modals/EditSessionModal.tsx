@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { DayPicker, DateRange } from "react-day-picker";
+import { format, parseISO } from "date-fns";
+import "react-day-picker/src/style.css";
 
 import Modal from "./Modal";
 import useEditSessionModal from "../hooks/useEditSessionModal";
@@ -24,8 +27,7 @@ const EditSessionModal = () => {
     const [dataName, setDataName] = useState('');
     const [dataDescription, setDataDescription] = useState('');
     const [dataProject, setDataProject] = useState('');
-    const [dataStart, setDataStart] = useState('');
-    const [dataEnd, setDataEnd] = useState('');
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
     const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
     const [projects, setProjects] = useState<ProjectOption[]>([]);
@@ -42,8 +44,13 @@ const EditSessionModal = () => {
             setDataName(d.name || '');
             setDataDescription(d.description || '');
             setDataProject(d.project?.id || '');
-            setDataStart(d.start || '');
-            setDataEnd(d.end || '');
+            if (d.start) {
+                const from = parseISO(d.start);
+                const to = d.end ? parseISO(d.end) : from;
+                setDateRange({ from, to: to.getTime() === from.getTime() ? undefined : to });
+            } else {
+                setDateRange(undefined);
+            }
             setSelectedRoles(d.roles ? d.roles.map((r: any) => r.id) : []);
             setCurrentStep(1);
             setErrors([]);
@@ -96,20 +103,22 @@ const EditSessionModal = () => {
         const validationErrors: string[] = [];
         if (!dataName) validationErrors.push('Session name is required.');
         if (!dataProject) validationErrors.push('Project is required.');
-        if (!dataStart) validationErrors.push('Start date is required.');
-        if (!dataEnd) validationErrors.push('End date is required.');
+        if (!dateRange?.from) validationErrors.push('Please select at least one date.');
 
         if (validationErrors.length > 0) {
             setErrors(validationErrors);
             return;
         }
 
+        const startDate = format(dateRange!.from!, 'yyyy-MM-dd');
+        const endDate = dateRange!.to ? format(dateRange!.to, 'yyyy-MM-dd') : startDate;
+
         const formData = new FormData();
         formData.append('name', dataName);
         formData.append('description', dataDescription);
         formData.append('project', dataProject);
-        formData.append('start', dataStart);
-        formData.append('end', dataEnd);
+        formData.append('start', startDate);
+        formData.append('end', endDate);
         selectedRoles.forEach(roleId => {
             formData.append('roles', roleId);
         });
@@ -164,18 +173,31 @@ const EditSessionModal = () => {
                         </div>
                     </div>
 
-                    <div className="py-2 space-y-4">
-                        <div className="flex flex-col space-y-2">
-                            <label>Start date</label>
-                            <input type="date" value={dataStart} onChange={(e) => setDataStart(e.target.value)} className="w-full p-4 border border-gray-600 rounded-xl" />
+                    <div className="py-2 space-y-2">
+                        <label>Date(s)</label>
+                        <div className="flex justify-center border border-gray-600 rounded-xl p-2">
+                            <DayPicker
+                                mode="range"
+                                selected={dateRange}
+                                onSelect={setDateRange}
+                                min={1}
+                                classNames={{
+                                    selected: "bg-lime-500 text-white",
+                                    range_start: "bg-lime-600 text-white rounded-l-full",
+                                    range_end: "bg-lime-600 text-white rounded-r-full",
+                                    range_middle: "bg-lime-100 text-lime-900",
+                                    today: "font-bold text-lime-700",
+                                }}
+                            />
                         </div>
-                    </div>
-
-                    <div className="py-2 space-y-4">
-                        <div className="flex flex-col space-y-2">
-                            <label>End date</label>
-                            <input type="date" value={dataEnd} onChange={(e) => setDataEnd(e.target.value)} className="w-full p-4 border border-gray-600 rounded-xl" />
-                        </div>
+                        {dateRange?.from && (
+                            <p className="text-sm text-gray-600 text-center">
+                                {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime()
+                                    ? `${format(dateRange.from, 'd MMM yyyy')} — ${format(dateRange.to, 'd MMM yyyy')}`
+                                    : format(dateRange.from, 'd MMM yyyy')
+                                }
+                            </p>
+                        )}
                     </div>
 
                     <SubmitButton label='Next' onClick={() => setCurrentStep(2)} />

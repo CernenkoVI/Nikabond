@@ -8,6 +8,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/actors/', include('actor.urls')),
     path('api/agents/', include('agent.urls')),
+    path('api/collections/', include('collection.urls')),
+    path('api/notifications/', include('notification.urls')),
     path('api/projects/', include('project.urls')),
     path('api/roles/', include('role.urls')),
     path('api/sessions/', include('session.urls')),

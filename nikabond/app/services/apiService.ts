@@ -1,4 +1,5 @@
 import { getAccessToken } from "../lib/actions";
+import useLoginModal from "../components/hooks/useLoginModal";
 
 async function parseResponse(response: Response) {
   const text = await response.text();
@@ -7,6 +8,12 @@ async function parseResponse(response: Response) {
   } catch {
     // not JSON—fallback to raw text
     return text;
+  }
+}
+
+function handleUnauthorized(res: Response) {
+  if (res.status === 401 || res.status === 403) {
+    useLoginModal.getState().open();
   }
 }
 
@@ -27,7 +34,7 @@ const apiService = {
     console.log('Response:', payload);
 
     if (!res.ok) {
-      // include status and payload for debugging
+      handleUnauthorized(res);
       throw new Error(`GET ${url} failed (${res.status}): ${JSON.stringify(payload)}`);
     }
     return payload;
@@ -86,7 +93,24 @@ const apiService = {
     console.log('Response:', payload);
 
     if (!res.ok) {
+      handleUnauthorized(res);
       throw new Error(`POST ${url} failed (${res.status}): ${JSON.stringify(payload)}`);
+    }
+    return payload;
+  },
+
+  deleteWithoutToken: async function (url: string): Promise<any> {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}${url}`, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    const payload = await parseResponse(res);
+
+    if (!res.ok) {
+      throw new Error(`DELETE ${url} failed (${res.status}): ${JSON.stringify(payload)}`);
     }
     return payload;
   },

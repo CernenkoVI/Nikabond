@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MyAccountComponent from "@/app/components/mypage/MyAccountComponent";
 import MyActorsComponent from "@/app/components/mypage/MyActorsComponent";
@@ -56,8 +57,14 @@ const addIcons: Partial<Record<Section, React.ReactNode>> = {
     ),
 };
 
+const VALID_SECTIONS: Section[] = ["account", "projects", "actors", "collections", "roles", "agents"];
+
 const MyPage = () => {
-    const [activeSection, setActiveSection] = useState<Section>("account");
+    const searchParams = useSearchParams();
+    const initialSection = VALID_SECTIONS.includes(searchParams.get('section') as Section)
+        ? (searchParams.get('section') as Section)
+        : "account";
+    const [activeSection, setActiveSection] = useState<Section>(initialSection);
     const addProjectModal = useAddProjectModal();
     const addPortfolioModal = useAddPortfolioModal();
     const addRoleModal = useAddRoleModal();

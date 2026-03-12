@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import ActorsListItem from './ActorsListItem';
 import apiService from '@/app/services/apiService';
 import useActorFilters from '../hooks/useActorFilters';
+import useActorSelection from '../hooks/useActorSelection';
 
 export type ActorType = {
     id: string;
@@ -49,9 +50,12 @@ const ActorsList = ({ roleId }: { roleId?: string }) => {
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const { appliedFilters, nameQuery, applyVersion } = useActorFilters();
+    const { isSelectionMode, selectedActorIds, selectAll, deselectAll } = useActorSelection();
 
     const totalPages = Math.ceil(actors.length / ITEMS_PER_PAGE);
     const paginatedActors = actors.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+    const pageActorIds = paginatedActors.map((a) => a.id);
+    const allPageSelected = pageActorIds.length > 0 && pageActorIds.every((id) => selectedActorIds.includes(id));
 
     const getActors = async () => {
         setLoading(true);
@@ -108,6 +112,22 @@ const ActorsList = ({ roleId }: { roleId?: string }) => {
 
     return (
         <>
+            {isSelectionMode && (
+                <div className="col-span-full flex items-center gap-3 pb-2">
+                    <button
+                        onClick={() => allPageSelected ? deselectAll() : selectAll(pageActorIds)}
+                        className="px-4 py-1.5 rounded-lg text-sm font-medium bg-lime-100 hover:bg-lime-200 transition-colors"
+                    >
+                        {allPageSelected ? 'Deselect all' : 'Select all on page'}
+                    </button>
+                    {selectedActorIds.length > 0 && (
+                        <span className="text-sm text-gray-600">
+                            {selectedActorIds.length} selected
+                        </span>
+                    )}
+                </div>
+            )}
+
             {paginatedActors.map((actor) => {
                 return <ActorsListItem key={actor.id} actor={actor} />;
             })}
