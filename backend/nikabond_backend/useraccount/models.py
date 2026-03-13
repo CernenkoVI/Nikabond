@@ -27,11 +27,18 @@ class CustomUserManager(UserManager):
         return self._create_user(name, email, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
+    ROLE_CHOICES = [
+        ('actor', 'Actor'),
+        ('agent', 'Agent'),
+        ('casting_director', 'Casting Director'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True) # 
-    username = models.CharField(max_length=150, blank=True, null=True)  # Todo change to match email
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     avatar = models.ImageField(upload_to='uploads/avatars')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='actor')
 
     is_active = models.BooleanField(default=True)  # Todo needs to be changed to False for email validation
     is_superuser = models.BooleanField(default=False)
@@ -59,3 +66,21 @@ class User(AbstractBaseUser, PermissionsMixin):
             return f'{settings.WEBSITE_URL}{self.avatar.url}'
         else:
             return ''
+
+
+class CastingDirectorProfile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='casting_director_profile')
+    image = models.ImageField(upload_to='uploads/casting_directors', blank=True, default='')
+    company = models.CharField(max_length=255, blank=True, default='')
+    phone = models.CharField(max_length=20, blank=True, default='')
+    description = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.name} (Casting Director)'
+
+    def image_url(self):
+        if self.image:
+            return f'{settings.WEBSITE_URL}{self.image.url}'
+        return ''

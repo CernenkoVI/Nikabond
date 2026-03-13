@@ -7,6 +7,7 @@ import useAssignActorsModal from "../hooks/useAssignActorsModal";
 import SubmitButton from "../SubmitButton";
 
 import apiService from "@/app/services/apiService";
+import { getAccessToken } from "@/app/lib/actions";
 
 type ActorOption = {
     id: string;
@@ -14,17 +15,25 @@ type ActorOption = {
     image_url: string;
 }
 
+type CollectionOption = {
+    id: string;
+    name: string;
+    actors_count: number;
+}
+
 const AssignActorsModal = () => {
     const [allActors, setAllActors] = useState<ActorOption[]>([]);
     const [selectedActors, setSelectedActors] = useState<string[]>([]);
+    const [collections, setCollections] = useState<CollectionOption[]>([]);
     const [errors, setErrors] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
+    const [showAllActors, setShowAllActors] = useState(false);
 
     const assignActorsModal = useAssignActorsModal();
 
-    // Fetch all actors and pre-select those already assigned to this role
     useEffect(() => {
         if (assignActorsModal.isOpen && assignActorsModal.roleId) {
+            setShowAllActors(false);
             const fetchData = async () => {
                 setLoading(true);
                 try {
@@ -38,6 +47,16 @@ const AssignActorsModal = () => {
                     const roleJson = await roleRes.json();
                     const assignedIds = (roleJson.data || []).map((a: ActorOption) => a.id);
                     setSelectedActors(assignedIds);
+
+                    const token = await getAccessToken();
+                    if (token) {
+                        try {
+                            const colRes = await apiService.get('/api/collections/');
+                            setCollections(colRes.data || []);
+                        } catch {
+                            setCollections([]);
+                        }
+                    }
                 } catch (error) {
                     console.log('Failed to fetch actors', error);
                 } finally {
@@ -54,6 +73,19 @@ const AssignActorsModal = () => {
                 ? prev.filter(id => id !== actorId)
                 : [...prev, actorId]
         );
+    };
+
+    const addFromCollection = async (collectionId: string) => {
+        try {
+            const data = await apiService.get(`/api/collections/${collectionId}/`);
+            const actorIds: string[] = (data.actors || []).map((a: ActorOption) => a.id);
+            setSelectedActors(prev => {
+                const merged = new Set([...prev, ...actorIds]);
+                return Array.from(merged);
+            });
+        } catch {
+            console.log('Failed to fetch collection actors');
+        }
     };
 
     const submitForm = async () => {
@@ -83,15 +115,51 @@ const AssignActorsModal = () => {
         }
     };
 
+    const assignedActors = allActors.filter(a => selectedActors.includes(a.id));
+    const displayedActors = showAllActors ? allActors : assignedActors;
+
     const content = (
         <>
-            <h2 className="mb-4 text-xl">Select Actors</h2>
+            {!loading && collections.length > 0 && (
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Add from Collection</label>
+                    <select
+                        defaultValue=""
+                        onChange={(e) => {
+                            if (e.target.value) {
+                                addFromCollection(e.target.value);
+                                e.target.value = '';
+                            }
+                        }}
+                        className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-lime-500 bg-white"
+                    >
+                        <option value="" disabled>Select a collection...</option>
+                        {collections.map((col) => (
+                            <option key={col.id} value={col.id}>
+                                {col.name} ({col.actors_count} actors)
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
+            <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-gray-500">
+                    {selectedActors.length} actor{selectedActors.length !== 1 ? 's' : ''} assigned
+                </span>
+                <button
+                    onClick={() => setShowAllActors(!showAllActors)}
+                    className="text-sm font-medium text-lime-700 hover:text-lime-800"
+                >
+                    {showAllActors ? 'Show assigned only' : 'Show all actors'}
+                </button>
+            </div>
 
             {loading ? (
                 <p className="py-4 text-sm text-gray-500">Loading actors...</p>
-            ) : allActors.length > 0 ? (
+            ) : displayedActors.length > 0 ? (
                 <div className="py-2 space-y-2 max-h-[400px] overflow-y-auto">
-                    {allActors.map((actor) => (
+                    {displayedActors.map((actor) => (
                         <label
                             key={actor.id}
                             className="flex items-center space-x-3 p-3 border border-gray-300 rounded-xl cursor-pointer hover:bg-lime-50"
@@ -112,7 +180,9 @@ const AssignActorsModal = () => {
                     ))}
                 </div>
             ) : (
-                <p className="py-4 text-sm text-gray-500">No actors available.</p>
+                <p className="py-4 text-sm text-gray-500">
+                    {showAllActors ? 'No actors available.' : 'No actors assigned yet.'}
+                </p>
             )}
 
             {errors.length > 0 && (

@@ -25,16 +25,24 @@ class Ethnicity(models.TextChoices):
 class Actor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='actor_profile',
+        null=True,
+        blank=True
+    )
+
     image = models.ImageField(upload_to='uploads/actors', blank=True, default='')
 
     name = models.CharField(max_length=255)
-    dob = models.DateField(default=None)
-    description = models.CharField(max_length=255, default=None)
-    email = models.EmailField(max_length=254, unique=True, default=None)
-    phone = models.CharField(max_length=20, default=None)
-    haircolor = models.CharField(max_length=255)
-    hairstyle = models.CharField(max_length=255)
-    eyecolor = models.CharField(max_length=255)
+    dob = models.DateField(null=True, blank=True)
+    description = models.CharField(max_length=255, blank=True, default='')
+    email = models.EmailField(max_length=254, unique=True, null=True, blank=True)
+    phone = models.CharField(max_length=20, blank=True, default='')
+    haircolor = models.CharField(max_length=255, blank=True, default='')
+    hairstyle = models.CharField(max_length=255, blank=True, default='')
+    eyecolor = models.CharField(max_length=255, blank=True, default='')
     gender = models.CharField(
         max_length=50,
         choices=Gender.choices,
@@ -55,14 +63,14 @@ class Actor(models.Model):
         default=None,
     )
 
-    info = models.TextField()
-    experience = models.CharField(max_length=255)
-    skills = models.CharField(max_length=255)
-    occupations = models.CharField(max_length=255)
-    languages = models.CharField(max_length=255)
+    info = models.TextField(blank=True, default='')
+    experience = models.CharField(max_length=255, blank=True, default='')
+    skills = models.CharField(max_length=255, blank=True, default='')
+    occupations = models.CharField(max_length=255, blank=True, default='')
+    languages = models.CharField(max_length=255, blank=True, default='')
     country = models.CharField(max_length=255, default='UNK')
     country_code = models.CharField(max_length=255, default='XX')
-    licence = models.CharField(max_length=255)
+    licence = models.CharField(max_length=255, blank=True, default='')
 
     height = models.FloatField(null=True, blank=True)
 
@@ -88,7 +96,7 @@ class Actor(models.Model):
         if self.image:
             return f'{settings.WEBSITE_URL}{self.image.url}'
         return f'{settings.WEBSITE_URL}/media/uploads/placeholders/actor.png'
-    
+
     def clean(self):
         from django.core.exceptions import ValidationError
         if self.gender == Gender.OTHER and not self.gender_other:

@@ -29,8 +29,8 @@ SITE_ID = 1
 WEBSITE_URL = "http://localhost:8000"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
     "ROTATE_REFRESH_TOKEN": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": True,
@@ -65,13 +65,10 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 REST_AUTH = {
-
     "USE_JWT": True,
-    "JWT_AUTH_HTTPONLY": False
-}
-
-REST_AUTH_REGISTER_SERIALIZERS = {
-    "REGISTER_SERIALIZER": "accounts.serializers.CustomRegisterSerializer",
+    "JWT_AUTH_HTTPONLY": False,
+    "USER_DETAILS_SERIALIZER": "useraccount.serializers.UserDetailSerializer",
+    "REGISTER_SERIALIZER": "useraccount.serializers.CustomRegisterSerializer",
 }
 
 # Application definition
@@ -100,6 +97,8 @@ INSTALLED_APPS = [
 
     "actor",
     "agent",
+    "collection",
+    "notification",
     "project",
     "role",
     "session",

@@ -15,14 +15,14 @@ export async function handleLogin(userId: string, accessToken: string, refreshTo
     cookieStore.set('session_access_token', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60, // one hour
+        maxAge: 60 * 60 * 24, // 24 hours
         path: '/'
     });
 
     cookieStore.set('session_refresh_token', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60, // one hour
+        maxAge: 60 * 60 * 24 * 30, // 30 days
         path: '/'
     });
 }

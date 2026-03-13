@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import "react-day-picker/src/style.css";
 
 import Modal from "./Modal";
 import useEditSessionModal from "../hooks/useEditSessionModal";
@@ -20,12 +21,19 @@ type RoleOption = {
     name: string;
 }
 
+const STATUS_OPTIONS = [
+    { value: 'draft', label: 'Draft' },
+    { value: 'scheduled', label: 'Scheduled' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' },
+];
+
 const EditSessionModal = () => {
-    const [dataName, setDataName] = useState('');
-    const [dataDescription, setDataDescription] = useState('');
+    const [dataTitle, setDataTitle] = useState('');
+    const [dataNotes, setDataNotes] = useState('');
     const [dataProject, setDataProject] = useState('');
-    const [dataStart, setDataStart] = useState('');
-    const [dataEnd, setDataEnd] = useState('');
+    const [dataScheduledAt, setDataScheduledAt] = useState('');
+    const [dataStatus, setDataStatus] = useState('draft');
     const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
     const [projects, setProjects] = useState<ProjectOption[]>([]);
@@ -39,11 +47,26 @@ const EditSessionModal = () => {
     useEffect(() => {
         if (editSessionModal.isOpen && editSessionModal.entityData) {
             const d = editSessionModal.entityData;
-            setDataName(d.name || '');
-            setDataDescription(d.description || '');
+            setDataTitle(d.title || d.name || '');
+            setDataNotes(d.notes || d.description || '');
             setDataProject(d.project?.id || '');
-            setDataStart(d.start || '');
-            setDataEnd(d.end || '');
+            setDataStatus(d.status || 'draft');
+
+            // Parse scheduled_at for the datetime-local input
+            if (d.scheduled_at) {
+                try {
+                    const dt = new Date(d.scheduled_at);
+                    // Format as YYYY-MM-DDTHH:MM for datetime-local input
+                    const local = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000)
+                        .toISOString().slice(0, 16);
+                    setDataScheduledAt(local);
+                } catch {
+                    setDataScheduledAt('');
+                }
+            } else {
+                setDataScheduledAt('');
+            }
+
             setSelectedRoles(d.roles ? d.roles.map((r: any) => r.id) : []);
             setCurrentStep(1);
             setErrors([]);
@@ -94,10 +117,8 @@ const EditSessionModal = () => {
         setErrors([]);
 
         const validationErrors: string[] = [];
-        if (!dataName) validationErrors.push('Session name is required.');
+        if (!dataTitle) validationErrors.push('Session title is required.');
         if (!dataProject) validationErrors.push('Project is required.');
-        if (!dataStart) validationErrors.push('Start date is required.');
-        if (!dataEnd) validationErrors.push('End date is required.');
 
         if (validationErrors.length > 0) {
             setErrors(validationErrors);
@@ -105,11 +126,13 @@ const EditSessionModal = () => {
         }
 
         const formData = new FormData();
-        formData.append('name', dataName);
-        formData.append('description', dataDescription);
+        formData.append('title', dataTitle);
+        formData.append('notes', dataNotes);
         formData.append('project', dataProject);
-        formData.append('start', dataStart);
-        formData.append('end', dataEnd);
+        formData.append('status', dataStatus);
+        if (dataScheduledAt) {
+            formData.append('scheduled_at', new Date(dataScheduledAt).toISOString());
+        }
         selectedRoles.forEach(roleId => {
             formData.append('roles', roleId);
         });
@@ -140,15 +163,15 @@ const EditSessionModal = () => {
 
                     <div className="py-2 space-y-4">
                         <div className="flex flex-col space-y-2">
-                            <label>Session name</label>
-                            <input type="text" value={dataName} onChange={(e) => setDataName(e.target.value)} className="w-full p-4 border border-gray-600 rounded-xl" />
+                            <label>Title</label>
+                            <input type="text" value={dataTitle} onChange={(e) => setDataTitle(e.target.value)} className="w-full p-4 border border-gray-600 rounded-xl" />
                         </div>
                     </div>
 
                     <div className="py-2 space-y-4">
                         <div className="flex flex-col space-y-2">
-                            <label>Description</label>
-                            <input type="text" value={dataDescription} onChange={(e) => setDataDescription(e.target.value)} className="w-full h-[200px] p-4 border border-gray-600 rounded-xl" />
+                            <label>Notes</label>
+                            <textarea value={dataNotes} onChange={(e) => setDataNotes(e.target.value)} className="w-full h-[120px] p-4 border border-gray-600 rounded-xl resize-none" />
                         </div>
                     </div>
 
@@ -166,15 +189,24 @@ const EditSessionModal = () => {
 
                     <div className="py-2 space-y-4">
                         <div className="flex flex-col space-y-2">
-                            <label>Start date</label>
-                            <input type="date" value={dataStart} onChange={(e) => setDataStart(e.target.value)} className="w-full p-4 border border-gray-600 rounded-xl" />
+                            <label>Scheduled Date & Time</label>
+                            <input
+                                type="datetime-local"
+                                value={dataScheduledAt}
+                                onChange={(e) => setDataScheduledAt(e.target.value)}
+                                className="w-full p-4 border border-gray-600 rounded-xl"
+                            />
                         </div>
                     </div>
 
                     <div className="py-2 space-y-4">
                         <div className="flex flex-col space-y-2">
-                            <label>End date</label>
-                            <input type="date" value={dataEnd} onChange={(e) => setDataEnd(e.target.value)} className="w-full p-4 border border-gray-600 rounded-xl" />
+                            <label>Status</label>
+                            <select value={dataStatus} onChange={(e) => setDataStatus(e.target.value)} className="w-full p-4 border border-gray-600 rounded-xl">
+                                {STATUS_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 

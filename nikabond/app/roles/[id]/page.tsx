@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import RoleActorsSection from "@/app/components/roles/RoleActorsSection";
+import RoleActorsFromSessions from "@/app/components/roles/RoleActorsFromSessions";
+import RoleSessionsSidebar from "@/app/components/roles/RoleSessionsSidebar";
 import RoleEditButton from "@/app/components/roles/RoleEditButton";
 import AttachedMediaButton from "@/app/components/AttachedMediaButton";
 import apiService from "@/app/services/apiService";
@@ -45,8 +46,7 @@ const RoleDetailPage = async ({params}: {params: Promise<{id: string}>}) => {
                             </Link>
                         </div>
 
-
-
+                        <RoleSessionsSidebar roleId={id} projectId={role.project?.id} />
 
                         <p className="mt-2 text-lg font-semibold opacity-80">Attached media:</p>
                         <AttachedMediaButton />
@@ -54,7 +54,7 @@ const RoleDetailPage = async ({params}: {params: Promise<{id: string}>}) => {
                     </div>
                 </aside>
 
-                <RoleActorsSection roleId={id} />
+                <RoleActorsFromSessions roleId={id} />
             </div>
         </main>
     )

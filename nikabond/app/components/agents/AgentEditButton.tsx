@@ -5,14 +5,15 @@ import useEditAgentModal from "../hooks/useEditAgentModal";
 interface AgentEditButtonProps {
     agentId: string;
     agentData: any;
+    onUpdated?: () => void;
 }
 
-const AgentEditButton: React.FC<AgentEditButtonProps> = ({ agentId, agentData }) => {
+const AgentEditButton: React.FC<AgentEditButtonProps> = ({ agentId, agentData, onUpdated }) => {
     const editAgentModal = useEditAgentModal();
 
     return (
         <button
-            onClick={() => editAgentModal.open(agentId, agentData)}
+            onClick={() => editAgentModal.open(agentId, agentData, onUpdated)}
             className="p-2 rounded-full hover:bg-lime-200 transition cursor-pointer"
             title="Edit agent"
         >

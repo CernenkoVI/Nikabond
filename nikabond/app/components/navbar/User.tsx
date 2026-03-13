@@ -1,81 +1,86 @@
 'use client';
 
-import { useState } from "react";
-import MenuLink from "./MenuLink";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import useLoginModal from "../hooks/useLoginModal";
 import useSignupModal from "../hooks/useSignUpModal";
-import { useEffect, useRef } from "react";
-import LogoutButton from "../LogoutButton";
+import { resetAuthCookies } from "@/app/lib/actions";
+import apiService from "@/app/services/apiService";
+import useProfileVersion from "../hooks/useProfileVersion";
 
 interface UserNavProps {
     userId?: string | null;
 }
 
+const DEFAULT_AVATARS: Record<string, string> = {
+    actor: '/moi.png',
+    agent: '/agent.png',
+    casting_director: '/moi.png',
+};
+
 const User: React.FC<UserNavProps> = ({
     userId
 }) => {
-    const ref = useRef<HTMLDivElement>(null);
+    const router = useRouter();
     const loginModal = useLoginModal();
     const signUpModal = useSignupModal();
-    const [isOpen, setIsOpen] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState('/moi.png');
+    const profileVersion = useProfileVersion((s) => s.version);
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (ref.current && event.target instanceof Node && !ref.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
+        if (!userId) return;
+        apiService.get('/api/auth/myprofile/')
+            .then((data) => {
+                const role = data.user?.role || 'actor';
+                const profileImage = data.profile?.image_url;
+                setAvatarUrl(profileImage || DEFAULT_AVATARS[role] || '/moi.png');
+            })
+            .catch(() => {});
+    }, [userId, profileVersion]);
+
+    const submitLogout = async () => {
+        await resetAuthCookies();
+        router.push('/');
+        router.refresh();
+    };
+
+    if (userId) {
+        return (
+            <div className="flex items-center space-x-2">
+                <Link href={`/mypage/${userId}`} className="cursor-pointer">
+                    <img src={avatarUrl} alt="My page" className="w-[30px] h-[30px] rounded-full hover:ring-2 hover:ring-lime-400 transition object-cover" />
+                </Link>
+
+                <button
+                    onClick={submitLogout}
+                    className="cursor-pointer text-gray-600 hover:text-lime-600 transition"
+                    title="Log out"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                    </svg>
+                </button>
+            </div>
+        );
+    }
 
     return (
-        <div ref={ref} className="p-1 relative inline-block border rounded-full bg-gray-200 hover:bg-lime-300">
+        <div className="flex items-center space-x-2">
             <button
-                className="flex items-center cursor-pointer"
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={loginModal.open}
+                className="cursor-pointer text-sm font-semibold text-lime-700 hover:text-lime-500 transition"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-                <img src="/moi.png" alt="Userpic" className="w-[35px] h-[35px] rounded-full" />
+                Log in
             </button>
-
-            {isOpen && (
-                <div className="animate-fadeIn w-[180px] absolute top-[60px] right-0 bg-white border rounded-xl shadow-md flex flex-col cursor-pointer">
-
-                    {userId ? (
-                        <><MenuLink 
-                            label="My account"
-                            href="/mypage/1"
-                            onClick={() => setIsOpen(false)}
-                        /> 
-                        <LogoutButton /></>
-
-                    ) : (
-                        <><MenuLink 
-                            label="Log in"
-                            onClick={() => {
-                                console.log('clicked log in')
-                                setIsOpen(false);
-                                loginModal.open();
-                            }}
-                        />
-                        <MenuLink 
-                            label="Sign up"
-                            onClick={() => {
-                                console.log('clicked sign up')
-                                setIsOpen(false);
-                                signUpModal.open();
-                            }}
-                        /></>
-                    )}
-                </div>
-            )}
+            <button
+                onClick={signUpModal.open}
+                className="cursor-pointer text-sm font-semibold bg-lime-500 text-white px-3 py-1 rounded-full hover:bg-lime-600 transition"
+            >
+                Sign up
+            </button>
         </div>
-    )
+    );
 }
 
-export default User
+export default User;

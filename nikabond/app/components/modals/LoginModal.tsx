@@ -15,7 +15,9 @@ const LoginModal = () => {
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState<string[]>([]);
 
-    const submitLogin = async () => {
+    const submitLogin = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+
         const formData = {
             email: email,
             password: password
@@ -24,19 +26,20 @@ const LoginModal = () => {
         const response = await apiService.postWithoutToken('/api/auth/login/', formData)
 
         if (response.access) {
-            handleLogin(response.user.pk, response.access, response.refresh)
+            await handleLogin(response.user.id, response.access, response.refresh);
 
             loginModal.close();
-            router.push('/')
+            router.push(`/mypage/${response.user.id}`);
+            router.refresh();
         }else{
             setErrors(response.non_field_errors);
         }
     }
 
     const content = (
-        <>            
+        <>
             <form
-                action={submitLogin}
+                onSubmit={submitLogin}
                 className="space-y-4"
             >
                 <input onChange={(e) => setEmail(e.target.value)} placeholder="Your e-mail address" type="email" className="w-full h-[54px] px-4 border border-gray-300 rounded-xl" />
@@ -44,7 +47,7 @@ const LoginModal = () => {
 
                 {errors.map((error, index) => {
                     return (
-                        <div 
+                        <div
                             key={ `error-${index}`}
                             className="p-5 bg-airbnb text-white rounded-xl opacity-80">
                             {error}
@@ -52,9 +55,12 @@ const LoginModal = () => {
                     )
                 })}
 
-                <SubmitButton 
-                    label="Submit"
-                    onClick={submitLogin}/>
+                <button
+                    type="submit"
+                    className="w-full py-4 bg-lime-300 hover:bg-lime-400 rounded-xl text-center transition cursor-pointer"
+                >
+                    Submit
+                </button>
             </form>
         </>
     )
