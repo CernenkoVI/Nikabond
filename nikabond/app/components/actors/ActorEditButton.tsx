@@ -5,14 +5,15 @@ import useEditActorModal from "../hooks/useEditActorModal";
 interface ActorEditButtonProps {
     actorId: string;
     actorData: any;
+    onUpdated?: () => void;
 }
 
-const ActorEditButton: React.FC<ActorEditButtonProps> = ({ actorId, actorData }) => {
+const ActorEditButton: React.FC<ActorEditButtonProps> = ({ actorId, actorData, onUpdated }) => {
     const editActorModal = useEditActorModal();
 
     return (
         <button
-            onClick={() => editActorModal.open(actorId, actorData)}
+            onClick={() => editActorModal.open(actorId, actorData, onUpdated)}
             className="p-2 rounded-full hover:bg-lime-200 transition cursor-pointer"
             title="Edit actor"
         >

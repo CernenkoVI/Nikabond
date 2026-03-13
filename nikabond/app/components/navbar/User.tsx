@@ -1,14 +1,23 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useLoginModal from "../hooks/useLoginModal";
 import useSignupModal from "../hooks/useSignUpModal";
 import { resetAuthCookies } from "@/app/lib/actions";
+import apiService from "@/app/services/apiService";
+import useProfileVersion from "../hooks/useProfileVersion";
 
 interface UserNavProps {
     userId?: string | null;
 }
+
+const DEFAULT_AVATARS: Record<string, string> = {
+    actor: '/moi.png',
+    agent: '/agent.png',
+    casting_director: '/moi.png',
+};
 
 const User: React.FC<UserNavProps> = ({
     userId
@@ -16,9 +25,23 @@ const User: React.FC<UserNavProps> = ({
     const router = useRouter();
     const loginModal = useLoginModal();
     const signUpModal = useSignupModal();
+    const [avatarUrl, setAvatarUrl] = useState('/moi.png');
+    const profileVersion = useProfileVersion((s) => s.version);
+
+    useEffect(() => {
+        if (!userId) return;
+        apiService.get('/api/auth/myprofile/')
+            .then((data) => {
+                const role = data.user?.role || 'actor';
+                const profileImage = data.profile?.image_url;
+                setAvatarUrl(profileImage || DEFAULT_AVATARS[role] || '/moi.png');
+            })
+            .catch(() => {});
+    }, [userId, profileVersion]);
 
     const submitLogout = async () => {
         await resetAuthCookies();
+        router.push('/');
         router.refresh();
     };
 
@@ -26,7 +49,7 @@ const User: React.FC<UserNavProps> = ({
         return (
             <div className="flex items-center space-x-2">
                 <Link href={`/mypage/${userId}`} className="cursor-pointer">
-                    <img src="/moi.png" alt="My page" className="w-[30px] h-[30px] rounded-full hover:ring-2 hover:ring-lime-400 transition" />
+                    <img src={avatarUrl} alt="My page" className="w-[30px] h-[30px] rounded-full hover:ring-2 hover:ring-lime-400 transition object-cover" />
                 </Link>
 
                 <button

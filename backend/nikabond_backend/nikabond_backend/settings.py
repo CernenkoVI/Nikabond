@@ -65,13 +65,10 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 REST_AUTH = {
-
     "USE_JWT": True,
-    "JWT_AUTH_HTTPONLY": False
-}
-
-REST_AUTH_REGISTER_SERIALIZERS = {
-    "REGISTER_SERIALIZER": "accounts.serializers.CustomRegisterSerializer",
+    "JWT_AUTH_HTTPONLY": False,
+    "USER_DETAILS_SERIALIZER": "useraccount.serializers.UserDetailSerializer",
+    "REGISTER_SERIALIZER": "useraccount.serializers.CustomRegisterSerializer",
 }
 
 # Application definition
