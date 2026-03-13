@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
 import useAddSessionModal from "../hooks/useAddSessionModal";
+import StatusBadge from "../StatusBadge";
 import apiService from "@/app/services/apiService";
 
 const formatDate = (date: string) => {
@@ -21,10 +22,15 @@ type RoleType = {
 
 type SessionType = {
     id: string;
-    name: string;
-    start: string;
-    end: string;
+    title: string;
+    scheduled_at: string | null;
+    status: string;
+    actor_count: number;
     roles: RoleType[];
+    // Legacy fields
+    name?: string;
+    start?: string;
+    end?: string;
 }
 
 type NotificationType = {
@@ -177,8 +183,23 @@ const ProjectPageRight = ({ id }: { id: string }) => {
                     {sessions.map((session) => (
                         <Link key={session.id} href={`/sessions/${session.id}`}>
                             <div className="p-3 mb-3 bg-white rounded-xl cursor-pointer hover:bg-lime-50">
-                                <p className="text-sm font-semibold">{session.name}</p>
-                                <p className="text-xs text-gray-500">{session.start === session.end ? formatDate(session.start) : `${formatDate(session.start)} - ${formatDate(session.end)}`}</p>
+                                <div className="flex items-center justify-between">
+                                    <p className="text-sm font-semibold">{session.title || session.name}</p>
+                                    <StatusBadge status={session.status || 'draft'} />
+                                </div>
+                                <p className="text-xs text-gray-500">
+                                    {session.scheduled_at
+                                        ? formatDate(session.scheduled_at)
+                                        : session.start
+                                            ? (session.start === session.end ? formatDate(session.start) : `${formatDate(session.start)} - ${formatDate(session.end!)}`)
+                                            : 'No date set'
+                                    }
+                                </p>
+                                {session.actor_count > 0 && (
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        {session.actor_count} actor{session.actor_count !== 1 ? 's' : ''}
+                                    </p>
+                                )}
                                 {session.roles && session.roles.length > 0 && (
                                     <div className="mt-2 flex flex-wrap gap-1">
                                         {session.roles.map((role) => (

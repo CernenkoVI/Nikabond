@@ -16,6 +16,7 @@ import EditProjectModal from "./components/modals/EditProjectModal";
 import EditRoleModal from "./components/modals/EditRoleModal";
 import EditSessionModal from "./components/modals/EditSessionModal";
 import SaveToCollectionModal from "./components/modals/SaveToCollectionModal";
+import AddActorsToSessionModal from "./components/modals/AddActorsToSessionModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,6 +60,7 @@ export default function RootLayout({
         <EditRoleModal />
         <EditSessionModal />
         <SaveToCollectionModal />
+        <AddActorsToSessionModal />
       </body>
     </html>
   );

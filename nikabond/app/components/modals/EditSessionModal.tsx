@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { DayPicker, DateRange } from "react-day-picker";
-import { format, parseISO } from "date-fns";
 import "react-day-picker/src/style.css";
 
 import Modal from "./Modal";
@@ -23,11 +21,19 @@ type RoleOption = {
     name: string;
 }
 
+const STATUS_OPTIONS = [
+    { value: 'draft', label: 'Draft' },
+    { value: 'scheduled', label: 'Scheduled' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' },
+];
+
 const EditSessionModal = () => {
-    const [dataName, setDataName] = useState('');
-    const [dataDescription, setDataDescription] = useState('');
+    const [dataTitle, setDataTitle] = useState('');
+    const [dataNotes, setDataNotes] = useState('');
     const [dataProject, setDataProject] = useState('');
-    const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+    const [dataScheduledAt, setDataScheduledAt] = useState('');
+    const [dataStatus, setDataStatus] = useState('draft');
     const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
     const [projects, setProjects] = useState<ProjectOption[]>([]);
@@ -41,16 +47,26 @@ const EditSessionModal = () => {
     useEffect(() => {
         if (editSessionModal.isOpen && editSessionModal.entityData) {
             const d = editSessionModal.entityData;
-            setDataName(d.name || '');
-            setDataDescription(d.description || '');
+            setDataTitle(d.title || d.name || '');
+            setDataNotes(d.notes || d.description || '');
             setDataProject(d.project?.id || '');
-            if (d.start) {
-                const from = parseISO(d.start);
-                const to = d.end ? parseISO(d.end) : from;
-                setDateRange({ from, to: to.getTime() === from.getTime() ? undefined : to });
+            setDataStatus(d.status || 'draft');
+
+            // Parse scheduled_at for the datetime-local input
+            if (d.scheduled_at) {
+                try {
+                    const dt = new Date(d.scheduled_at);
+                    // Format as YYYY-MM-DDTHH:MM for datetime-local input
+                    const local = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000)
+                        .toISOString().slice(0, 16);
+                    setDataScheduledAt(local);
+                } catch {
+                    setDataScheduledAt('');
+                }
             } else {
-                setDateRange(undefined);
+                setDataScheduledAt('');
             }
+
             setSelectedRoles(d.roles ? d.roles.map((r: any) => r.id) : []);
             setCurrentStep(1);
             setErrors([]);
@@ -101,24 +117,22 @@ const EditSessionModal = () => {
         setErrors([]);
 
         const validationErrors: string[] = [];
-        if (!dataName) validationErrors.push('Session name is required.');
+        if (!dataTitle) validationErrors.push('Session title is required.');
         if (!dataProject) validationErrors.push('Project is required.');
-        if (!dateRange?.from) validationErrors.push('Please select at least one date.');
 
         if (validationErrors.length > 0) {
             setErrors(validationErrors);
             return;
         }
 
-        const startDate = format(dateRange!.from!, 'yyyy-MM-dd');
-        const endDate = dateRange!.to ? format(dateRange!.to, 'yyyy-MM-dd') : startDate;
-
         const formData = new FormData();
-        formData.append('name', dataName);
-        formData.append('description', dataDescription);
+        formData.append('title', dataTitle);
+        formData.append('notes', dataNotes);
         formData.append('project', dataProject);
-        formData.append('start', startDate);
-        formData.append('end', endDate);
+        formData.append('status', dataStatus);
+        if (dataScheduledAt) {
+            formData.append('scheduled_at', new Date(dataScheduledAt).toISOString());
+        }
         selectedRoles.forEach(roleId => {
             formData.append('roles', roleId);
         });
@@ -149,15 +163,15 @@ const EditSessionModal = () => {
 
                     <div className="py-2 space-y-4">
                         <div className="flex flex-col space-y-2">
-                            <label>Session name</label>
-                            <input type="text" value={dataName} onChange={(e) => setDataName(e.target.value)} className="w-full p-4 border border-gray-600 rounded-xl" />
+                            <label>Title</label>
+                            <input type="text" value={dataTitle} onChange={(e) => setDataTitle(e.target.value)} className="w-full p-4 border border-gray-600 rounded-xl" />
                         </div>
                     </div>
 
                     <div className="py-2 space-y-4">
                         <div className="flex flex-col space-y-2">
-                            <label>Description</label>
-                            <input type="text" value={dataDescription} onChange={(e) => setDataDescription(e.target.value)} className="w-full h-[200px] p-4 border border-gray-600 rounded-xl" />
+                            <label>Notes</label>
+                            <textarea value={dataNotes} onChange={(e) => setDataNotes(e.target.value)} className="w-full h-[120px] p-4 border border-gray-600 rounded-xl resize-none" />
                         </div>
                     </div>
 
@@ -173,31 +187,27 @@ const EditSessionModal = () => {
                         </div>
                     </div>
 
-                    <div className="py-2 space-y-2">
-                        <label>Date(s)</label>
-                        <div className="flex justify-center border border-gray-600 rounded-xl p-2">
-                            <DayPicker
-                                mode="range"
-                                selected={dateRange}
-                                onSelect={setDateRange}
-                                min={1}
-                                classNames={{
-                                    selected: "bg-lime-500 text-white",
-                                    range_start: "bg-lime-600 text-white rounded-l-full",
-                                    range_end: "bg-lime-600 text-white rounded-r-full",
-                                    range_middle: "bg-lime-100 text-lime-900",
-                                    today: "font-bold text-lime-700",
-                                }}
+                    <div className="py-2 space-y-4">
+                        <div className="flex flex-col space-y-2">
+                            <label>Scheduled Date & Time</label>
+                            <input
+                                type="datetime-local"
+                                value={dataScheduledAt}
+                                onChange={(e) => setDataScheduledAt(e.target.value)}
+                                className="w-full p-4 border border-gray-600 rounded-xl"
                             />
                         </div>
-                        {dateRange?.from && (
-                            <p className="text-sm text-gray-600 text-center">
-                                {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime()
-                                    ? `${format(dateRange.from, 'd MMM yyyy')} — ${format(dateRange.to, 'd MMM yyyy')}`
-                                    : format(dateRange.from, 'd MMM yyyy')
-                                }
-                            </p>
-                        )}
+                    </div>
+
+                    <div className="py-2 space-y-4">
+                        <div className="flex flex-col space-y-2">
+                            <label>Status</label>
+                            <select value={dataStatus} onChange={(e) => setDataStatus(e.target.value)} className="w-full p-4 border border-gray-600 rounded-xl">
+                                {STATUS_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <SubmitButton label='Next' onClick={() => setCurrentStep(2)} />
